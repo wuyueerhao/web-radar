@@ -46,5 +46,7 @@ export async function hostedSite(request:Request,env:AppEnv,domain:DomainService
   const files=await artifact!.json<Record<string,string>>();
   const path=url.pathname.slice(1)+(url.pathname.endsWith('/')?'index.html':'');
   if(!Object.hasOwn(files,path)||typeof files[path]!=='string')return new Response('Page not found',{status:404});
-  return new Response(request.method==='HEAD'?null:files[path],{headers:{'Content-Type':path.endsWith('.html')?'text/html;charset=utf-8':path.endsWith('.xml')?'application/xml':'text/plain','Cache-Control':'private, no-cache','X-Content-Type-Options':'nosniff'}});
+  const extension=path.split('.').pop()||'';
+  const contentTypes:Record<string,string>={html:'text/html;charset=utf-8',css:'text/css;charset=utf-8',js:'text/javascript;charset=utf-8',json:'application/json',webmanifest:'application/manifest+json',svg:'image/svg+xml',xml:'application/xml',txt:'text/plain;charset=utf-8'};
+  return new Response(request.method==='HEAD'?null:files[path],{headers:{'Content-Type':contentTypes[extension]||'application/octet-stream','Cache-Control':'private, no-cache','X-Content-Type-Options':'nosniff'}});
 }
