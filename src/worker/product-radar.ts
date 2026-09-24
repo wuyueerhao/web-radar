@@ -82,35 +82,43 @@ export async function prRequest(
   bearer?: string,
 ): Promise<Response> {
   const { origin, secret } = integrationConfig(env);
-  try {
-    const r = await fetch(origin + path, {
-      method: body === undefined ? 'GET' : 'POST',
-      headers: {
-        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-        ...(bearer ? { Authorization: `Bearer ${bearer}` } : { 'X-Web-Radar-Secret': secret }),
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      redirect: 'manual',
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!r.ok) {
-      await r.body?.cancel();
-      const status = [400, 401, 403, 404, 409, 429, 503].includes(r.status) ? r.status : 502;
-      throw new ApiError(
-        status,
-        'product_radar_unavailable',
-        status === 403
-          ? '当前账号或工作区权限已失效。'
-          : status === 401
-            ? '登录已失效，请重新登录。'
-            : 'Product Radar 服务暂不可用。',
-      );
+  // Context is a read-only lookup even though its transport uses POST. Retry
+  // only this endpoint; credentials, writes and other POSTs are never replayed.
+  const attempts = path === '/api/web-radar/service/context' ? 2 : 1;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try {
+      const r = await fetch(origin + path, {
+        method: body === undefined ? 'GET' : 'POST',
+        headers: {
+          ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+          ...(bearer ? { Authorization: `Bearer ${bearer}` } : { 'X-Web-Radar-Secret': secret }),
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        redirect: 'manual',
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!r.ok) {
+        await r.body?.cancel();
+        if (r.status >= 500 && attempt + 1 < attempts) continue;
+        const status = [400, 401, 403, 404, 409, 429, 503].includes(r.status) ? r.status : 502;
+        throw new ApiError(
+          status,
+          'product_radar_unavailable',
+          status === 403
+            ? '当前账号或工作区权限已失效。'
+            : status === 401
+              ? '登录已失效，请重新登录。'
+              : 'Product Radar 服务暂不可用。',
+        );
+      }
+      return r;
+    } catch (e) {
+      if (e instanceof ApiError) throw e;
+      if (attempt + 1 < attempts) continue;
+      throw new ApiError(502, 'product_radar_unavailable', '暂时无法连接 Product Radar，请稍后重试。');
     }
-    return r;
-  } catch (e) {
-    if (e instanceof ApiError) throw e;
-    throw new ApiError(502, 'product_radar_unavailable', '暂时无法连接 Product Radar。');
   }
+  throw new ApiError(502, 'product_radar_unavailable', '暂时无法连接 Product Radar。');
 }
 export async function prService<T = unknown>(
   env: AppEnv,
@@ -158,8 +166,20 @@ export async function prService<T = unknown>(
   if (!parsed.success) throw new ApiError(502, 'invalid_products', '来源产品格式有误。');
   return parsed.data as T;
 }
+const principalReads = new WeakMap<AppEnv, Map<string, Promise<Principal>>>();
 export async function currentPrincipal(env: AppEnv, principal: Principal): Promise<Principal> {
-  return (await prService<{ principal: Principal }>(env, principal, 'context')).principal;
+  let reads = principalReads.get(env);
+  if (!reads) { reads = new Map(); principalReads.set(env, reads); }
+  const key = JSON.stringify([principal.userId, principal.workspaceId]);
+  const pending = reads.get(key);
+  if (pending) return pending;
+  // Share only an in-flight lookup. Never cache a completed permission result:
+  // the next request must see revoked roles or workspace membership immediately.
+  const lookup = prService<{ principal: Principal }>(env, principal, 'context')
+    .then(result => result.principal)
+    .finally(() => reads!.delete(key));
+  reads.set(key, lookup);
+  return lookup;
 }
 export async function prImage(
   env: AppEnv,
