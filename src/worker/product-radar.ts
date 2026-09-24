@@ -81,6 +81,15 @@ export async function prRequest(
   body?: unknown,
   bearer?: string,
 ): Promise<Response> {
+  return consumePrRequest(env, path, body, bearer, async response => response);
+}
+async function consumePrRequest<T>(
+  env: AppEnv,
+  path: string,
+  body: unknown,
+  bearer: string | undefined,
+  consume: (response: Response) => Promise<T>,
+): Promise<T> {
   const { origin, secret } = integrationConfig(env);
   // Context is a read-only lookup even though its transport uses POST. Retry
   // only this endpoint; credentials, writes and other POSTs are never replayed.
@@ -111,7 +120,9 @@ export async function prRequest(
               : 'Product Radar 服务暂不可用。',
         );
       }
-      return r;
+      // Include reading the body in the same attempt budget. A connection can
+      // fail after headers arrive; retrying outside this loop would multiply it.
+      return await consume(r);
     } catch (e) {
       if (e instanceof ApiError) throw e;
       if (attempt + 1 < attempts) continue;
@@ -142,12 +153,11 @@ export async function prService<T = unknown>(
   }
   if (!['context', 'products'].includes(path))
     throw new ApiError(400, 'invalid_service', '不支持的服务。');
-  const response = await prRequest(env, '/api/web-radar/service/' + path, {
+  const data = await consumePrRequest(env, '/api/web-radar/service/' + path, {
     ...body,
     userId: principal.userId,
     workspaceId: principal.workspaceId,
-  });
-  const data = await readUpstream(response);
+  }, undefined, readUpstream);
   if (path === 'context') {
     const parsed = z
       .object({ protocolVersion: z.literal(1), principal: principalSchema })

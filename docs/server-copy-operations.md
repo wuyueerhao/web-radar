@@ -99,3 +99,10 @@ sh deploy/server/network-isolation.sh
 - 证书生效后可刷新绑定状态；重新发布会将 canonical 与 sitemap 切换到已生效的自定义域名。
 - 设置 API：`GET/PUT /api/projects/:id/deployment`，需项目管理权限。PUT 带 `expectedVersion`、`provider`，Cloudflare 还需 `credentialId`、`accountId`，迁移已发布项目需 `confirmMigration: true`。
 - 不能在发布进行中更换部署位置或修改绑定；不会自动搬迁现有自定义域名。
+
+## 账户服务连接
+
+- 服务器针对 `PRODUCT_RADAR_BASE_URL` 的精确来源地址使用独立连接池，最多 4 条连接、空闲复用上限 60 秒；上游可提前关闭连接。TLS 校验保持开启，不固定 Cloudflare IP，也不修改其他服务商的连接池。
+- 实时身份查询最多尝试 2 次，每次 15 秒，覆盖响应头与响应正文的读取。网络中断和上游 5xx 可以重试；401、403、429、格式无效和身份不匹配直接返回错误。登录密码请求和业务写入不重放。
+- 只合并同一账号、工作区同时进行的身份查询，不缓存已完成的权限结果。账户服务持续不可用时拒绝访问，不使用旧权限放行。
+- 网络验收需要分别观察首次连接与复用连接。连接池减少反复建连，不能替代上游服务或跨境网络故障的修复。

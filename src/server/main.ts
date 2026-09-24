@@ -7,6 +7,7 @@ import { DomainService } from '../worker/domain-service';
 import type { AppEnv } from '../worker/env';
 import { serverProviders, hostedSite } from './hosting';
 import { allowCloudflareMutation } from './cloudflare-guard';
+import { accountTransport } from './account-transport';
 import { outreachQueue } from '../worker/outreach';
 // @ts-ignore Node-only adapter is separately tested with node:test.
 import { LocalDatabase } from './sqlite.mjs';
@@ -75,12 +76,14 @@ const timer=setInterval(()=>{
 
 // Enforce independent Pages/DNS ownership at the network boundary.
 const nativeFetch=globalThis.fetch;
+const accountConnections=accountTransport(env.PRODUCT_RADAR_BASE_URL);
 globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
   const url=new URL(input instanceof Request?input.url:String(input));
   const method=(init?.method||(input instanceof Request?input.method:'GET')).toUpperCase();
-  if(!await allowCloudflareMutation(env,url,method,init?.body??(input instanceof Request?await input.clone().text():undefined)))
+  const guarded=url.hostname==='api.cloudflare.com'&&!['GET','HEAD'].includes(method);
+  if(guarded&&!await allowCloudflareMutation(env,url,method,init?.body??(input instanceof Request?await input.clone().text():undefined)))
     throw new Error('Cloudflare operation is outside this server’s managed namespace');
-  const options:any={...init};
+  const options:any={...init,...accountConnections.options(url)};
   if(options.body instanceof ReadableStream) options.duplex='half';
   return nativeFetch(input,options);
 }) as typeof fetch;
@@ -134,5 +137,5 @@ const server=createServer(async(req,res)=>{
 server.requestTimeout=120000;
 server.headersTimeout=30000;
 server.listen(Number(process.env.PORT||3000),process.env.LISTEN_HOST||'127.0.0.1',()=>console.log('Web Radar server ready'));
-async function shutdown() {stopped=true;clearInterval(timer);server.close();await Promise.allSettled([...pending]);db.close();process.exit(0);}
+async function shutdown() {stopped=true;clearInterval(timer);server.close();await Promise.allSettled([...pending]);await accountConnections.close();db.close();process.exit(0);}
 process.on('SIGTERM',shutdown);process.on('SIGINT',shutdown);

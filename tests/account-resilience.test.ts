@@ -10,6 +10,26 @@ it('retries a timed-out read-only context once and recovers',async()=>{
  const fetcher=vi.fn().mockRejectedValueOnce(new DOMException('timeout','TimeoutError')).mockResolvedValueOnce(success());vi.stubGlobal('fetch',fetcher);
  expect(await currentPrincipal(env(),principal)).toEqual(principal);expect(fetcher).toHaveBeenCalledTimes(2);
 });
+const interruptedBody=()=>new Response(new ReadableStream({start(controller){
+ controller.enqueue(new TextEncoder().encode('{"protocolVersion":1,'));
+ controller.error(new DOMException('body interrupted','AbortError'));
+}}));
+it('recovers when the context connection fails after response headers',async()=>{
+ const fetcher=vi.fn().mockResolvedValueOnce(interruptedBody()).mockResolvedValueOnce(success());vi.stubGlobal('fetch',fetcher);
+ expect(await currentPrincipal(env(),principal)).toEqual(principal);expect(fetcher).toHaveBeenCalledTimes(2);
+});
+it('shares one retry budget between header and body failures',async()=>{
+ const fetcher=vi.fn().mockResolvedValueOnce(new Response(null,{status:503})).mockResolvedValueOnce(interruptedBody());vi.stubGlobal('fetch',fetcher);
+ await expect(currentPrincipal(env(),principal)).rejects.toMatchObject({status:502,code:'product_radar_unavailable'});expect(fetcher).toHaveBeenCalledTimes(2);
+});
+it.each([
+ ()=>new Response('not json'),
+ ()=>new Response('x'.repeat(2*1024*1024+1)),
+ ()=>Response.json({protocolVersion:1,principal:{...principal,workspaceId:'wrong'}}),
+])('does not retry malformed, oversized or mismatched identity responses',async response=>{
+ const fetcher=vi.fn().mockImplementation(()=>Promise.resolve(response()));vi.stubGlobal('fetch',fetcher);
+ await expect(currentPrincipal(env(),principal)).rejects.toMatchObject({status:expect.any(Number)});expect(fetcher).toHaveBeenCalledTimes(1);
+});
 it('retries transient upstream errors but keeps retries bounded',async()=>{
  const fetcher=vi.fn().mockImplementation(()=>Promise.resolve(new Response(null,{status:503})));vi.stubGlobal('fetch',fetcher);
  await expect(currentPrincipal(env(),principal)).rejects.toMatchObject({status:503});expect(fetcher).toHaveBeenCalledTimes(2);
