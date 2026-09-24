@@ -8,7 +8,7 @@ export interface TemplateDefinition {
   name: string;
   englishName: string;
   tagline: string;
-  category: 'consumer' | 'tech' | 'enterprise' | 'creative';
+  category: 'consumer' | 'tech' | 'enterprise' | 'creative' | 'single';
   industries: string[];
   features: string[];
   accentColor: string;
@@ -603,6 +603,44 @@ export const TEMPLATES: TemplateDefinition[] = [
     hasVideo: true,
     previewImg: '/templates/previews/senseng-video.jpg',
   },
+  {
+    id: 'single-device-showcase',
+    name: '极客硬件展台 · 单品旗舰',
+    englishName: 'Single Device Keynote & Hardware Stage',
+    tagline: '专为单款前沿科技硬件与声学数码发布设计；暗黑赛博舞台、0.12ms 遥测 HUD、Bento 参数矩阵与纵向腔体拆解',
+    category: 'single',
+    industries: ['声学硬件', '智能穿戴', '极客数码', '单品旗舰发布', '高科技众筹'],
+    features: ['赛博暗黑极简未来机能', '0.12ms 遥测全息 HUD', 'Bento 模块化技术参数矩阵', '横纵多维结构剖面与全景展示'],
+    accentColor: '#00f0ff',
+    badge: '单产品发布 · 硬件旗舰',
+    hasVideo: true,
+    previewImg: '/templates/previews/single-device-showcase.4fba868003f28c65.jpg',
+  },
+  {
+    id: 'single-artisan-craft',
+    name: '典藏工坊腕表 · 单品奢作',
+    englishName: 'Single Artisan Heritage & Atelier Spread',
+    tagline: '专为单款奢华机械腕表与高端手作孤品定制；暖调亚麻象牙白金、非对称杂志双联、五道传世工序时光轴与材料血统鉴证书',
+    category: 'single',
+    industries: ['高级制表', '手工皮具', '珠宝孤品', '单品艺术收藏', '奢侈品定制'],
+    features: ['暖调亚麻白金奢华画报', '瑞士非对称双联排版', '五道传世工序时光轴', '材料血统鉴证书与工匠名录'],
+    accentColor: '#c5a880',
+    badge: '单产品奢华 · 工匠典藏',
+    previewImg: '/templates/previews/single-artisan-craft.42693c18b8094059.jpg',
+  },
+  {
+    id: 'single-wellness-nordic',
+    name: '北欧轻愈生活 · 单品纯净',
+    englishName: 'Single Nordic Serene & Circadian Studio',
+    tagline: '专为单款天然芳疗、智能家居与疗愈器物量身打造；晨雾鼠尾草绿与燕麦白、日光晨居、24 小时昼夜节律导览与临床双盲实验数据',
+    category: 'single',
+    industries: ['芳疗香氛', '纯净护肤', '智能健康', '单品家居美学', '自然疗愈独立站'],
+    features: ['晨雾鼠尾草绿与自然燕麦白', '斯堪的纳维亚日光漫反射', '24 小时昼夜节律双环导览', '双盲实验科研数据环'],
+    accentColor: '#4a7c59',
+    badge: '单产品治愈 · 北欧晨雾',
+    hasVideo: true,
+    previewImg: '/templates/previews/single-wellness-nordic.6edfcae862f23415.jpg',
+  },
 ];
 
 const PRESET_COLORS = [
@@ -619,6 +657,7 @@ const PRESET_COLORS = [
 
 const CATEGORIES = [
   { id: 'all', label: `全部模版 (${TEMPLATES.length})` },
+  { id: 'single', label: `单品独立站与专品 (${TEMPLATES.filter((t) => t.category === 'single').length})` },
   { id: 'consumer', label: `品类与消费出海 (${TEMPLATES.filter((t) => t.category === 'consumer').length})` },
   { id: 'tech', label: `科技与 SaaS (${TEMPLATES.filter((t) => t.category === 'tech').length})` },
   { id: 'enterprise', label: `商贸与通用商品 (${TEMPLATES.filter((t) => t.category === 'enterprise').length})` },

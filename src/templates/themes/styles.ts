@@ -1915,6 +1915,20 @@ body[data-template="food-harvest-video"] {
   color: #2a3517;
 }
 
+/* Single Product Showcase Templates */
+body[data-template="single-device-showcase"] {
+  background: #08090e;
+  color: #ffffff;
+}
+body[data-template="single-artisan-craft"] {
+  background: #faf7f2;
+  color: #2a221b;
+}
+body[data-template="single-wellness-nordic"] {
+  background: #f7faf8;
+  color: #1e2d24;
+}
+
 @keyframes wrPulse {
   0%, 100% {
     opacity: 1;

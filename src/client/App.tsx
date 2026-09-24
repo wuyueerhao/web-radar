@@ -96,6 +96,9 @@ const TEMPLATE_PREVIEWS: Record<string, string> = {
   'poster-gallery-video': '/templates/previews/senseng-video.jpg',
   'food-artisan-banner': '/templates/previews/senseng-arcade.jpg',
   'food-harvest-video': '/templates/previews/senseng-video.jpg',
+  'single-device-showcase': '/templates/previews/single-device-showcase.4fba868003f28c65.jpg',
+  'single-artisan-craft': '/templates/previews/single-artisan-craft.42693c18b8094059.jpg',
+  'single-wellness-nordic': '/templates/previews/single-wellness-nordic.6edfcae862f23415.jpg',
   natural: '/templates/previews/senseng-clean.jpg',
   technology: '/templates/previews/saas-automation.jpg',
   explorer: '/templates/previews/crafto-corporate.jpg',
@@ -994,6 +997,9 @@ function Projects({ onOpen, principal }: { onOpen: (id: string) => void; princip
                           'poster-gallery-video': '日落画廊与艺术微喷展厅',
                           'food-artisan-banner': '赤陶橄榄自然农庄与匠心食品',
                           'food-harvest-video': '金秋丰收晨光与庄园食品盛宴',
+                          'single-device-showcase': '极客硬件展台 · 单品旗舰',
+                          'single-artisan-craft': '典藏工坊腕表 · 单品奢作',
+                          'single-wellness-nordic': '北欧轻愈生活 · 单品纯净',
                         } as Record<TemplateId, string>)[project.template] || '专业模版'
                       }
                     </span>

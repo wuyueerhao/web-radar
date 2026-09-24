@@ -6,7 +6,7 @@ import { referenceLayouts } from '../src/templates/themes/referenceLayouts';
 
 describe('template media checklist stays aligned with the renderer', () => {
   it('covers exactly the selectable templates', () => {
-    expect(TEMPLATES).toHaveLength(47);
+    expect(TEMPLATES).toHaveLength(50);
     expect(Object.keys(templateMediaRequirements).sort()).toEqual(
       TEMPLATES.map((t) => t.id).sort(),
     );

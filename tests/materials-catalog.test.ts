@@ -22,7 +22,7 @@ describe('lightweight materials discovery', () => {
   it('advertises exact matching requirements without downloading full contracts', async () => {
     const response = await get('/materials/catalog');
     const catalog = await response.json() as any;
-    expect(catalog.templates).toHaveLength(47);
+    expect(catalog.templates).toHaveLength(50);
     expect(catalog.catalogRevision).toBe(await sha256(JSON.stringify(catalog.templates)));
     expect(response.headers.get('ETag')).toBe(`"${catalog.catalogRevision}"`);
     for (const entry of catalog.templates) {

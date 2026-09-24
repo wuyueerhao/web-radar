@@ -46,6 +46,9 @@ import guidePosterBanner from './documents/poster-graphic-banner.json';
 import guidePosterVideo from './documents/poster-gallery-video.json';
 import guideFoodBanner from './documents/food-artisan-banner.json';
 import guideFoodVideo from './documents/food-harvest-video.json';
+import guideSingleDevice from './documents/single-device-showcase.json';
+import guideSingleArtisan from './documents/single-artisan-craft.json';
+import guideSingleWellness from './documents/single-wellness-nordic.json';
 
 const documents = [
   guide0,
@@ -95,6 +98,9 @@ const documents = [
   guidePosterVideo,
   guideFoodBanner,
   guideFoodVideo,
+  guideSingleDevice,
+  guideSingleArtisan,
+  guideSingleWellness,
 ].map((value) => guideSchema.parse(value));
 export const templateGuides: readonly TemplateGuide[] = guideIds.map((id) => {
   const matches = documents.filter((guide) => guide.templateId === id);

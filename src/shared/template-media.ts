@@ -642,6 +642,48 @@ export const templateMediaRequirements: Partial<Record<TemplateId, TemplateMedia
       },
     ],
   },
+  'single-device-showcase': {
+    productCount: 8,
+    productSize: '1200 × 1200（1:1）',
+    bannerSize: '2560 × 1440（16:9 dark keynote cyber hardware showcase）',
+    bannerNote: 'Dark mode cybernetic flagship device showcase.',
+    videos: 1,
+    slots: [
+      {
+        count: 8,
+        width: 1200,
+        height: 1200,
+      },
+    ],
+  },
+  'single-artisan-craft': {
+    productCount: 8,
+    productSize: '1200 × 1200（1:1）',
+    bannerSize: '2560 × 960（16:6 luxury ivory gold artisan atelier）',
+    bannerNote: 'Warm ivory and gold luxury craftsmanship magazine spread.',
+    videos: 0,
+    slots: [
+      {
+        count: 8,
+        width: 1200,
+        height: 1200,
+      },
+    ],
+  },
+  'single-wellness-nordic': {
+    productCount: 8,
+    productSize: '1200 × 1200（1:1）',
+    bannerSize: '2560 × 1440（16:9 sage organic scandinavian wellness video）',
+    bannerNote: 'Nordic sage green and oat biophilic wellness studio.',
+    videos: 1,
+    slots: [
+      {
+        count: 8,
+        width: 1200,
+        height: 1200,
+      },
+    ],
+  },
   'saas-automation': {
     productCount: 12,
     productSize: '1200 × 1200（1:1），主体四周留白',

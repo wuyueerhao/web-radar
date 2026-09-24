@@ -10,6 +10,7 @@ import { frozenIndustryPreviewRuntime } from './releases/industry-preview-202609
 import { getMaterialsTemplate as outreachContract, renderSite as outreachRender } from './releases/outreach-20260923.mjs';
 import { getOutreachDemoContract, repairOutreachMaterials } from './releases/outreach-demo-20260923.mjs';
 import { repairMaterialsDemo } from './releases/demo-20260923.mjs';
+import { getModernMaterialsTemplate, getTypedMaterialsTemplate } from './materials-typed';
 
 export const materialsRendererRevision = '2026-09-22.baseline-09fb979';
 export const industryRendererRevision = '2026-09-22.industry-bafe6c1';
@@ -36,6 +37,7 @@ const templateProductFamilies: Record<string, ProductIdentity["family"][]> = {
   juno: ['toy', 'plush'], senseng: ['toy', 'plush'],
   drinkware: ['drinkware'], beauty: ['beauty'], electronics: ['electronics'], tools: ['tools'], sports: ['outdoor'],
   pet: ['pet'], stationery: ['stationery'], poster: ['flat', 'home'], food: ['food'],
+  single: ['electronics', 'general', 'home'],
 };
 export function identityMaterialsContract(id: string): MaterialsTemplateContract | undefined {
   const outreach = outreachContract(id, identityMaterialsRevision(id));
@@ -54,7 +56,7 @@ export function identityMaterialsContract(id: string): MaterialsTemplateContract
 export function executableMaterialsContract(id: string): MaterialsTemplateContract | undefined {
   const outreach = outreachContract(id, executableMaterialsRevision(id));
   if (outreach) return outreach;
-  const contract = frozenContract(id) ?? industryContract(id, executableMaterialsRevision(id));
+  const contract = frozenContract(id) ?? industryContract(id, executableMaterialsRevision(id)) ?? getModernMaterialsTemplate(id);
   if (!contract) return;
   contract.contractRevision = executableMaterialsRevision(id);
   return declareExecutionMetadata(contract);
@@ -91,7 +93,7 @@ export function releasedMaterialsContract(id: string, revision?: string): Materi
   if (revision === executableMaterialsRevision(id)) return executableMaterialsContract(id);
   const frozen = frozenContract(id, revision);
   if (frozen) return frozen;
-  return industryContract(id, revision) ?? outreachContract(id, revision);
+  return industryContract(id, revision) ?? outreachContract(id, revision) ?? getModernMaterialsTemplate(id, revision) ?? (revision === `2026-09-19.${id}-materials.1` ? getTypedMaterialsTemplate(id) : undefined);
 }
 
 export function renderReleasedMaterials(draft: Draft, options: RenderOptions): string | undefined {

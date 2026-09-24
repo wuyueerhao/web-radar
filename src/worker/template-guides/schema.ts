@@ -46,6 +46,9 @@ export const guideIds = [
   'poster-gallery-video',
   'food-artisan-banner',
   'food-harvest-video',
+  'single-device-showcase',
+  'single-artisan-craft',
+  'single-wellness-nordic',
   'saas-automation',
   'corpox-ai-agency',
 ] as const;

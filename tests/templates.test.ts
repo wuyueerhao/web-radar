@@ -442,3 +442,75 @@ describe('8 new industry templates across 4 categories', () => {
   });
 });
 
+describe('3 single-product showcase templates', () => {
+  const singleTemplates = [
+    'single-device-showcase',
+    'single-artisan-craft',
+    'single-wellness-nordic',
+  ] as const;
+
+  for (const template of singleTemplates) {
+    it(`renders ${template} full website journey with zero Chinese in EN`, () => {
+      const d = draft();
+      d.template = template;
+      const pages = ['home', 'catalog', 'detail', 'about', 'contact'] as const;
+      for (const page of pages) {
+        const html = renderSite(d, { ...opts, page, productId: 'p-one', preview: true });
+        expect(html).toContain(`data-template="${template}"`);
+        expect(html).not.toMatch(/[\u4e00-\u9fa5]/);
+      }
+    });
+  }
+
+  it('renders unique signatures, layouts, and storytelling features for each single-product template', () => {
+    const d = draft();
+
+    // 1. single-device-showcase: Cyber Keynote dark futuristic telemetry HUD & architecture breakdown
+    const deviceHome = renderSite({ ...d, template: 'single-device-showcase' }, opts);
+    expect(deviceHome).toContain('0.12ms');
+    expect(deviceHome).toContain('Flagship Single-Product Keynote');
+    expect(deviceHome).toContain('SYSTEM // ONLINE');
+    expect(deviceHome).toContain('EXPLODED ANATOMY');
+
+    const deviceDetail = renderSite(
+      { ...d, template: 'single-device-showcase' },
+      { ...opts, page: 'detail', productId: 'p-one' },
+    );
+    expect(deviceDetail).toContain('wr-detail-main-img');
+    expect(deviceDetail).toContain('VERIFIED TECHNICAL METRICS');
+    expect(deviceDetail).toContain('IP68 Submersible');
+
+    // 2. single-artisan-craft: Warm ivory gold luxury atelier & 5-stage craftsmanship timeline
+    const artisanHome = renderSite({ ...d, template: 'single-artisan-craft' }, opts);
+    expect(artisanHome).toContain('THE ATELIER PROTOCOL');
+    expect(artisanHome).toContain('The 5 Stages of Timeless Execution');
+    expect(artisanHome).toContain('Certificate of Material Provenance');
+
+    const artisanDetail = renderSite(
+      { ...d, template: 'single-artisan-craft' },
+      { ...opts, page: 'detail', productId: 'p-one' },
+    );
+    expect(artisanDetail).toContain('wr-detail-main-img');
+    expect(artisanDetail).toContain('HAND-NUMBERED PIÈCE UNIQUE');
+    expect(artisanDetail).toContain('Geneva Atelier');
+
+    // 3. single-wellness-nordic: Sage & oat organic biophilic wellness & 24h circadian rhythm guide
+    const wellnessHome = renderSite({ ...d, template: 'single-wellness-nordic' }, opts);
+    expect(wellnessHome).toContain('One Device. Synchronized to Your Sun.');
+    expect(wellnessHome).toContain('The 24h Rhythm');
+    expect(wellnessHome).toContain('Scientifically Tested in Double-Blind Trials');
+
+    const wellnessDetail = renderSite(
+      { ...d, template: 'single-wellness-nordic' },
+      { ...opts, page: 'detail', productId: 'p-one' },
+    );
+    expect(wellnessDetail).toContain('wr-detail-main-img');
+    expect(wellnessDetail).toContain('CERTIFIED BIOPHILIC LIVING');
+    expect(wellnessDetail).toContain('100% BPA-Free');
+
+    // Verify all 3 single-product templates have completely distinct homepages
+    const homes = [deviceHome, artisanHome, wellnessHome];
+    const uniqueHomes = new Set(homes);
+    expect(uniqueHomes.size).toBe(3);
+  });
+});

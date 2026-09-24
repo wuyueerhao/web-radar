@@ -327,5 +327,26 @@
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.stationery-studio-video-materials.6"
+  },
+  "single-device-showcase": {
+    "url": "/templates/previews/single-device-showcase.4fba868003f28c65.jpg",
+    "sha256": "4fba868003f28c65375d4d038f2632221c2e26269c8cb40e37613cf6a0167b4c",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.single-device-showcase-materials.6"
+  },
+  "single-artisan-craft": {
+    "url": "/templates/previews/single-artisan-craft.42693c18b8094059.jpg",
+    "sha256": "42693c18b809405961da19e6d76f45432887ab20b259367412d67c66e9eb44f4",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.single-artisan-craft-materials.6"
+  },
+  "single-wellness-nordic": {
+    "url": "/templates/previews/single-wellness-nordic.6edfcae862f23415.jpg",
+    "sha256": "6edfcae862f234156ba7013c251975a7d6ffd8822bb9817541255da6d4a4f67c",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.single-wellness-nordic-materials.6"
   }
 }
