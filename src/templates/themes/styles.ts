@@ -1928,6 +1928,25 @@ body[data-template="single-wellness-nordic"] {
   background: #f7faf8;
   color: #1e2d24;
 }
+@media (max-width: 767px) {
+  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) [style*="grid-template-columns"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 24px !important;
+  }
+  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) [style*="grid-template-columns"] > * {
+    min-width: 0;
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    overflow-wrap: anywhere;
+  }
+  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) header > div,
+  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) header nav {
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
 
 @keyframes wrPulse {
   0%, 100% {
