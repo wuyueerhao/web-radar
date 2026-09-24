@@ -696,7 +696,7 @@ export default function TemplateSelector({
           <span className="step-tag">极速建站分支 · 第 2 步 / 共 3 步</span>
           <h2>选择网站模版与品牌调色</h2>
           <p className="step-subtitle">
-            共提供 19
+            共提供 {TEMPLATES.length}
             套精心设计的高保真行业旗舰模版（涵盖通用商品、玩具与公仔、毛绒与靠垫、服装与纺织品、鞋靴及科技出海等多品类，包含宽幅展台与沉浸视频型）。选中后将自动灌注你的公司与产品数据。
           </p>
         </div>

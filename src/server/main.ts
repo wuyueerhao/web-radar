@@ -41,7 +41,9 @@ async function assets(request:Request) {
     path=resolve(assetRoot,'index.html');
   }
   const data = await readFile(path);
-  return new Response(request.method==='HEAD'?null:data,{headers:{'Content-Type':mime[extname(path)]||'application/octet-stream','Content-Length':String(data.length)}});
+  // Always retrieve the current entry page after a release. Old hashed chunks
+  // remain available for tabs that are already open.
+  return new Response(request.method==='HEAD'?null:data,{headers:{'Content-Type':mime[extname(path)]||'application/octet-stream','Content-Length':String(data.length),...(extname(path)==='.html'?{'Cache-Control':'no-store'}:{})}});
 }
 const env = {...process.env, DB:db, MEDIA:new LocalBucket(resolve(root,'media'),db), ASSETS:{fetch:assets}} as unknown as AppEnv;
 const emailQueue=new DurableQueue(db,'web-radar-edm-email');
