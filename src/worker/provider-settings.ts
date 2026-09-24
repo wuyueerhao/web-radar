@@ -1,5 +1,6 @@
 import { testMode, type AppEnv } from './env';
 import type { Project } from '../shared/model';
+import { hostingProvider, matchesDeployment } from '../shared/deployment';
 import type { ProviderAccount, CloudflareZone } from '../shared/provider-settings';
 import { DomainError, requireCondition } from './domain';
 import { requestJson } from './providers/http';
@@ -47,8 +48,9 @@ export class ProviderSettings {
     return this.env.DB;
   }
   private async environmentCloudflare(project: Project) {
-    const target = await resolveHostingTarget(this.env, project.id, project.hostingTarget);
-    const account = hostingAccounts(this.env).find((a) => a.accountId === target.accountId)!;
+    const accounts = hostingAccounts(this.env);
+    const target = this.env.SERVER_SITE_SUFFIX ? project.hostingTarget?.provider === 'cloudflare' ? project.hostingTarget : undefined : await resolveHostingTarget(this.env, project.id, project.hostingTarget);
+    const account = accounts.find(a=>a.accountId===target?.accountId) ?? accounts[0];
     return {
       id: `environment-cloudflare:${account.accountId}`,
       token: account.apiToken,
@@ -64,9 +66,10 @@ export class ProviderSettings {
             .first<{ data: string }>()
         : null;
       requireCondition(record, 404, 'project_not_found', '项目不存在。');
-      const account = await this.environmentCloudflare(JSON.parse(record.data) as Project);
+      const configured = hostingAccounts(this.env).find(a=>id===`environment-cloudflare:${a.accountId}`);
+      const account = this.env.SERVER_SITE_SUFFIX ? (configured ? {id,token:configured.apiToken,accountId:configured.accountId} : null) : await this.environmentCloudflare(JSON.parse(record.data) as Project);
       requireCondition(
-        account.id === id,
+        account?.id === id,
         404,
         'provider_not_found',
         '该账号不是此网站配置的 Cloudflare 账号。',
@@ -77,6 +80,34 @@ export class ProviderSettings {
     check(row.kind === 'cloudflare', '请选择 Cloudflare 账号。');
     return { id: row.id, token: await this.token(row), accountId: undefined };
   }
+  async hostingOptions(projectId:string) {
+    const accounts:{credentialId:string;accountId:string;label:string}[]=[];
+    const warnings:string[]=[];
+    try { for(const account of hostingAccounts(this.env)) accounts.push({credentialId:`environment-cloudflare:${account.accountId}`,accountId:account.accountId,label:`默认发布账号 · ${account.accountId.slice(0,8)}`}); } catch { warnings.push('默认 Cloudflare 发布账号尚未配置。'); }
+    for(const account of (await this.list(projectId)).filter(a=>a.kind==='cloudflare'&&a.scope!=='environment')) {
+      try {
+        const credential=await this.cloudflareCredential(account.id,projectId);
+        const zones=await this.zonesWithToken(credential.token);
+        for(const zone of zones)if(!accounts.some(a=>a.credentialId===account.id&&a.accountId===zone.accountId)) accounts.push({credentialId:account.id,accountId:zone.accountId,label:`${account.label} · ${zone.accountName||zone.accountId.slice(0,8)}`});
+      } catch { warnings.push(`${account.label}：无法读取授权账号，请检查 Token。`); }
+    }
+    return {accounts,warnings};
+  }
+  async hostingCredential(projectId:string,credentialId:string,accountId:string) {
+    check(/^[a-zA-Z0-9_-]{1,64}$/.test(accountId),'Cloudflare 账号标识无效。');
+    let apiToken:string;
+    if(credentialId===`environment-cloudflare:${accountId}`) {
+      const account=hostingAccounts(this.env).find(a=>a.accountId===accountId);
+      requireCondition(account,404,'hosting_account_missing','发布账号未配置。');apiToken=account.apiToken;
+    } else {
+      const row=await this.row(credentialId,projectId);check(row.kind==='cloudflare','请选择 Cloudflare 账号。');apiToken=await this.token(row);
+      const zones=await this.zonesWithToken(apiToken);check(zones.some(z=>z.accountId===accountId),'此 Token 未授权所选账号。');
+    }
+    // Read-only access check; a deployment still validates Pages Edit permission.
+    await this.cf(apiToken,`/accounts/${enc(accountId)}/pages/projects?per_page=1`);
+    return {accountId,apiToken};
+  }
+  private dnsComment(project:Project) { return this.env.SERVER_INSTANCE_ID ? `web-radar-server:${this.env.SERVER_INSTANCE_ID}:${project.id}` : `web-radar:${project.id}`; }
   private async key() {
     check(this.env.ASSET_SIGNING_KEY, '尚未配置凭据加密密钥。');
     const raw = await crypto.subtle.digest(
@@ -198,9 +229,9 @@ export class ProviderSettings {
     check(row.scope === scope, '不能在网站内删除后台共享账号。');
     const used = await this.db
       .prepare(
-        "SELECT (SELECT count(*) FROM project_domains WHERE credential_id=?) + (SELECT count(*) FROM project_delivery_settings WHERE resend_account_id=?) + (SELECT count(*) FROM jobs WHERE kind='email' AND json_extract(data,'$.input.resendAccountId')=? AND status!='succeeded') AS n",
+        "SELECT (SELECT count(*) FROM project_domains WHERE credential_id=?) + (SELECT count(*) FROM project_delivery_settings WHERE resend_account_id=?) + (SELECT count(*) FROM jobs WHERE kind='email' AND json_extract(data,'$.input.resendAccountId')=? AND status!='succeeded') + (SELECT count(*) FROM projects WHERE json_extract(data,'$.deployment.credentialId')=? OR json_extract(data,'$.hostingTarget.credentialId')=?) AS n",
       )
-      .bind(id, id, id)
+      .bind(id, id, id, id, id)
       .first<{ n: number }>();
     requireCondition(
       !used?.n,
@@ -268,6 +299,7 @@ export class ProviderSettings {
       /* Keep manually saved accounts available when hosting configuration is missing. */
     }
 
+    if(project.hostingTarget?.credentialId && accounts.some(a=>a.id===project.hostingTarget?.credentialId)) defaultCloudflareAccountId=project.hostingTarget.credentialId;
     const delivery = await this.db
       .prepare('SELECT resend_account_id FROM project_delivery_settings WHERE project_id=?')
       .bind(project.id)
@@ -282,6 +314,8 @@ export class ProviderSettings {
       resendAccountId: delivery?.resend_account_id ?? null,
       environmentEmail: !!(this.env.RESEND_API_KEY && this.env.MAIL_FROM),
       published: !!project.publishedReleaseId,
+      hostingProvider: hostingProvider(await this.publishedTarget(project),!!this.env.SERVER_SITE_SUFFIX),
+      serverAddress: this.env.SERVER_PUBLIC_IP,
       domains: bindings.results.map((r) => ({
         hostname: r.hostname,
         status: r.status,
@@ -324,27 +358,27 @@ export class ProviderSettings {
       key,
     );
   }
-  private pages(project: Project) {
+  private async publishedTarget(project:Project) {
+    const row=project.publishedReleaseId ? await this.db.prepare('SELECT data FROM releases WHERE id=? AND project_id=?').bind(project.publishedReleaseId,project.id).first<{data:string}>() : null;
+    return row ? JSON.parse(row.data).hostingTarget ?? project.hostingTarget : project.hostingTarget;
+  }
+  private async pages(project: Project) {
     requireCondition(
       project.publishedReleaseId && project.hostingTarget,
       409,
       'publish_first',
       '请先发布网站，再绑定域名。',
     );
-    const target = project.hostingTarget,
-      account = hostingAccounts(this.env).find((a) => a.accountId === target.accountId);
-    requireCondition(
-      account,
-      409,
-      'hosting_account_missing',
-      '网站发布账号未配置，请恢复原 Cloudflare 托管凭据。',
-    );
-    return {
-      token: account.apiToken,
-      accountId: account.accountId,
-      path: `/accounts/${enc(account.accountId)}/pages/projects/${enc(target.pagesProjectName)}/domains`,
-      target: target.pagesProjectName + '.pages.dev',
-    };
+    const target=(await this.publishedTarget(project))!;
+    const active=await this.db.prepare("SELECT count(*) AS n FROM jobs WHERE project_id=? AND kind='publish' AND status IN ('queued','running','unknown')").bind(project.id).first<{n:number}>();
+    requireCondition(!active?.n,409,'publish_pending','发布完成后再修改域名。');
+    if(this.env.SERVER_SITE_SUFFIX && hostingProvider(target,true)==='server') {
+      requireCondition(this.env.SERVER_PUBLIC_IP,503,'server_domain_unconfigured','服务器域名服务尚未配置。');
+      return {kind:'server' as const,token:'',accountId:'',path:'',target:this.env.SERVER_PUBLIC_IP,recordType:'A'};
+    }
+    const credential=target.credentialId ? await this.hostingCredential(project.id,target.credentialId,target.accountId) : hostingAccounts(this.env).find(a=>a.accountId===target.accountId);
+    requireCondition(credential,409,'hosting_account_missing','网站发布账号未配置，请恢复原 Cloudflare 托管凭据。');
+    return {kind:'cloudflare' as const,token:credential.apiToken,accountId:credential.accountId,path:`/accounts/${enc(credential.accountId)}/pages/projects/${enc(target.pagesProjectName)}/domains`,target:target.pagesProjectName+'.pages.dev',recordType:'CNAME'};
   }
   async bind(project: Project, body: Record<string, unknown>) {
     check(
@@ -368,10 +402,11 @@ export class ProviderSettings {
       '主机名必须属于所选域名，不支持通配符。',
     );
     check(zone.status === 'active', '域名尚未在 Cloudflare 激活，请先完成 NS 配置。');
-    const pages = this.pages(project);
-    check(hostname !== new URL(this.env.APP_ORIGIN!).hostname, '不能绑定管理平台自身的域名。');
+    const pages = await this.pages(project);
+    requireCondition(!this.env.SERVER_SITE_SUFFIX || !project.deployment || matchesDeployment(await this.publishedTarget(project),project.deployment,true),409,'migration_pending','请先完成部署位置切换并发布，再绑定域名。');
+    check(![this.env.APP_ORIGIN,this.env.PUBLIC_SITE_ORIGIN].filter(Boolean).some(origin=>new URL(origin!).hostname===hostname) && (!this.env.SERVER_SITE_SUFFIX||!hostname.endsWith('.'+this.env.SERVER_SITE_SUFFIX)), '不能绑定平台或系统站点域名。');
     check(
-      hostname !== zone.name || zone.accountId === pages.accountId,
+      pages.kind==='server' || hostname !== zone.name || zone.accountId === pages.accountId,
       '根域名必须与网站 Pages 项目在同一个 Cloudflare 账号；跨账号请选择 www 等子域名。',
     );
     const existing = await this.db
@@ -393,7 +428,7 @@ export class ProviderSettings {
     ).result as any[];
     const cname = records.find(
       (r) =>
-        r.type === 'CNAME' && String(r.content).replace(/\.$/, '').toLowerCase() === pages.target,
+        r.type === pages.recordType && String(r.content).replace(/\.$/, '').toLowerCase() === pages.target,
     );
     requireCondition(
       records.every((r) => r === cname || !['A', 'AAAA', 'CNAME', 'NS'].includes(r.type)) &&
@@ -417,25 +452,26 @@ export class ProviderSettings {
         )
         .bind(hostname, project.id, row.id, zone.id, zone.name, new Date().toISOString())
         .run();
-    const domains = (await this.cf(pages.token, pages.path)).result as any[];
-    if (!domains.some((d) => d.name === hostname))
-      await this.cf(pages.token, pages.path, 'POST', { name: hostname });
+    if(pages.kind==='cloudflare') {
+      const domains = (await this.cf(pages.token, pages.path)).result as any[];
+      if (!domains.some((d) => d.name === hostname)) await this.cf(pages.token, pages.path, 'POST', { name: hostname });
+    }
     if (!cname) {
       const record = (
         await this.cf(token, `/zones/${enc(zone.id)}/dns_records`, 'POST', {
-          type: 'CNAME',
+          type: pages.recordType,
           name: hostname,
           content: pages.target,
           ttl: 1,
-          proxied: true,
-          comment: `web-radar:${project.id}`,
+          proxied: pages.kind==='cloudflare',
+          comment: this.dnsComment(project),
         })
       ).result;
       await this.db
         .prepare('UPDATE project_domains SET dns_record_id=?,owns_dns=1 WHERE hostname=?')
         .bind(record.id, hostname)
         .run();
-    } else if (cname.comment === `web-radar:${project.id}`) {
+    } else if (cname.comment === this.dnsComment(project)) {
       await this.db
         .prepare('UPDATE project_domains SET dns_record_id=?,owns_dns=1 WHERE hostname=?')
         .bind(cname.id, hostname)
@@ -444,8 +480,13 @@ export class ProviderSettings {
     return this.refresh(project, hostname);
   }
   async refresh(project: Project, hostname: string) {
-    await this.binding(project.id, hostname);
-    const pages = this.pages(project);
+    const binding=await this.binding(project.id, hostname);
+    const pages = await this.pages(project);
+    if(pages.kind==='server') {
+      const status=binding.status==='active'?'active':'pending_tls';
+      await this.db.prepare('UPDATE project_domains SET status=? WHERE hostname=? AND project_id=?').bind(status,hostname,project.id).run();
+      return {status};
+    }
     const result = (await this.cf(pages.token, pages.path + '/' + enc(hostname))).result;
     const status = typeof result.status === 'string' ? result.status : 'pending';
     await this.db
@@ -464,12 +505,13 @@ export class ProviderSettings {
   }
   async unbind(project: Project, hostname: string) {
     const binding = await this.binding(project.id, hostname),
-      pages = this.pages(project),
+      pages = await this.pages(project),
       credential = await this.cloudflareCredential(binding.credential_id, project.id),
       token = credential.token;
-    const domains = (await this.cf(pages.token, pages.path)).result as any[];
-    if (domains.some((d) => d.name === hostname))
-      await this.cf(pages.token, pages.path + '/' + enc(hostname), 'DELETE');
+    if(pages.kind==='cloudflare') {
+      const domains = (await this.cf(pages.token, pages.path)).result as any[];
+      if (domains.some((d) => d.name === hostname)) await this.cf(pages.token, pages.path + '/' + enc(hostname), 'DELETE');
+    }
     {
       const records = (
         await this.cf(
@@ -480,15 +522,15 @@ export class ProviderSettings {
       const record = records.find((r) =>
         binding.dns_record_id
           ? r.id === binding.dns_record_id
-          : r.type === 'CNAME' &&
+          : r.type === pages.recordType &&
             r.content === pages.target &&
-            r.comment === `web-radar:${project.id}`,
+            r.comment === this.dnsComment(project),
       );
       if (
         record &&
-        record.type === 'CNAME' &&
+        record.type === pages.recordType &&
         record.content === pages.target &&
-        record.comment === `web-radar:${project.id}`
+        record.comment === this.dnsComment(project)
       )
         await this.cf(
           token,

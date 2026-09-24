@@ -8,6 +8,8 @@ import { materialsImageAssetIds, validateMaterialsDraft } from './materials-draf
 import { siteContacts } from '../shared/site-contacts';
 import { bannerAssets } from '../shared/banner-config';
 import { auditSeo, withPublicationMetadata, SEO_POLICY_VERSION, type PublicationMetadata } from './site-metadata';
+import { deploymentOptions, validateDeployment } from './deployment-settings';
+import { deploymentSelection, matchesDeployment } from '../shared/deployment';
 import { ProviderSettings, withStoredEmailStatus } from './provider-settings';
 import { backupManifest } from './backup-manifest';
 import { listProjectSummaries } from './project-queries';
@@ -321,6 +323,15 @@ export class DomainService {
     }
     const project = await this.project(path[2] ?? '', principal),
       command = path[3];
+    if(command==='deployment') {
+      if(method==='GET')return json(await deploymentOptions(this.env,project));
+      if(method==='PUT'){
+        const body=await this.body(request);expectedVersion(project,body.expectedVersion);
+        project.deployment=await validateDeployment(this.env,project,body);
+        const next=this.changed(project);await this.store.update('projects',next).run();
+        return json({project:next});
+      }
+    }
     if (command === 'connections') {
       const settings = new ProviderSettings(this.env);
       if (method === 'GET' && !path[4]) return json(await settings.settings(project));
@@ -340,7 +351,7 @@ export class DomainService {
       const files = await this.renderFiles(project.draft, {
         projectId: project.id, assetUrl: metadata.assetUrl!,
         inquiryUrl: `/api/public/sites/${project.id}/inquiries`,
-        publicBaseUrl: `${this.origin()}/public/sites/${project.id}`,
+        publicBaseUrl: `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/sites/${project.id}`,
       });
       const release = project.publishedReleaseId ? await this.store.one<Release>('releases', project.publishedReleaseId) : undefined;
       return json({ ...auditSeo(withPublicationMetadata(files, metadata.origin ?? 'https://preview.invalid', metadata)), version: project.version, origin: metadata.origin ?? null,
@@ -1961,7 +1972,7 @@ export class DomainService {
         await this.store.remember(scope, rid, hash, { id: samePending.id }).run();
         return samePending;
       }
-      if (!project.offline && activeRelease?.status === 'succeeded' && (!isTypedMaterials(draft) || activeRelease.rendererVersion === typedRendererVersion) && activeRelease.seo?.policyVersion === SEO_POLICY_VERSION && activeRelease.seo?.origin === currentMetadata.origin && samePublishedDraft(draft, activeRelease.draft)) {
+      if (!project.offline && activeRelease?.status === 'succeeded' && (!isTypedMaterials(draft) || activeRelease.rendererVersion === typedRendererVersion) && activeRelease.seo?.policyVersion === SEO_POLICY_VERSION && activeRelease.seo?.origin === currentMetadata.origin && (!this.env.SERVER_SITE_SUFFIX||matchesDeployment(activeRelease.hostingTarget,deploymentSelection(project,true),true)) && samePublishedDraft(draft, activeRelease.draft)) {
         const jobs = await this.store.list<Job>('jobs', "project_id=? AND kind='publish' AND status='succeeded'", [project.id], 'created_at DESC');
         const existing = jobs.find(job => job.input.releaseId === activeRelease.id);
         if (existing) {
@@ -1975,7 +1986,7 @@ export class DomainService {
       project.hostingTarget ?? activeRelease?.hostingTarget ?? restored?.hostingTarget;
     const target = await this.providers.resolveHostingTarget(project.id, currentTarget);
     requireCondition(
-      !currentTarget ||
+      !currentTarget || (this.env.SERVER_SITE_SUFFIX && (!!project.deployment || target.provider==='server')) ||
         (target.accountId === currentTarget.accountId &&
           target.pagesProjectName === currentTarget.pagesProjectName),
       503,
@@ -2101,7 +2112,7 @@ export class DomainService {
         lang,
         page,
         productId,
-        assetUrl: (id: string) => `${this.origin()}/public/sites/${projectId}/assets/${id}`,
+        assetUrl: (id: string) => `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/sites/${projectId}/assets/${id}`,
         inquiryUrl: `/api/public/sites/${projectId}/inquiries`,
         preview: false,
       },
@@ -2187,7 +2198,7 @@ export class DomainService {
       company,
       message,
       productId: productId as string | undefined,
-      siteUrl: project.siteUrl ?? `${this.origin()}/public/sites/${projectId}/en/index.html`,
+      siteUrl: project.siteUrl ?? `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/sites/${projectId}/en/index.html`,
       createdAt: now(),
       emailStatus: 'queued',
       emailAttempts: 0,
@@ -2419,7 +2430,7 @@ export class DomainService {
       token = Array.from(signature)
         .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
-    return `${this.origin()}/public/provider-assets/${encodeURIComponent(asset.id)}?expires=${expires}&token=${token}`;
+    return `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/provider-assets/${encodeURIComponent(asset.id)}?expires=${expires}&token=${token}`;
   }
   private async signedAsset(request: Request, id: string): Promise<Response> {
     const url = new URL(request.url),
@@ -2964,9 +2975,9 @@ export class DomainService {
       );
       const renderOptions = {
         projectId: job.projectId,
-        assetUrl: (id: string) => `${this.origin()}/public/sites/${job.projectId}/assets/${id}`,
+        assetUrl: (id: string) => `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/sites/${job.projectId}/assets/${id}`,
         inquiryUrl: `/api/public/sites/${job.projectId}/inquiries`,
-        publicBaseUrl: `${this.origin()}/public/sites/${job.projectId}`,
+        publicBaseUrl: `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/sites/${job.projectId}`,
       };
       if (job.input.mediaPreparation && !release.publicMedia?.ready) {
         if (!(await this.preparePublicationMedia(job, release, renderOptions))) return;
@@ -3157,10 +3168,11 @@ export class DomainService {
     // active binding consistently rather than whichever domain was refreshed last.
     const domain = await this.env.DB.prepare("SELECT hostname FROM project_domains WHERE project_id=? AND status='active' ORDER BY created_at ASC, hostname ASC LIMIT 1")
       .bind(project.id).first<{hostname:string}>();
+    const target=this.env.SERVER_SITE_SUFFIX ? await this.providers.resolveHostingTarget(project.id,project.hostingTarget) : project.hostingTarget;
     return {
-      origin: this.env.SERVER_SITE_SUFFIX ? `https://${project.id}.${this.env.SERVER_SITE_SUFFIX}` : domain ? `https://${domain.hostname}` : project.hostingTarget ? `https://${project.hostingTarget.pagesProjectName}.pages.dev` : undefined,
+      origin: domain ? `https://${domain.hostname}` : target?.provider==='server' ? `https://${project.id}.${this.env.SERVER_SITE_SUFFIX}` : target ? `https://${target.pagesProjectName}.pages.dev` : undefined,
       draft,
-      assetUrl: id => `${this.origin()}/public/sites/${project.id}/assets/${encodeURIComponent(id)}`,
+      assetUrl: id => `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/sites/${project.id}/assets/${encodeURIComponent(id)}`,
     };
   }
   /** Prepare immutable bytes before Pages can see any candidate HTML. At most four distinct assets overlap. */
@@ -3290,7 +3302,7 @@ export class DomainService {
     if (draft.buildBranch === 'template' || !draft.siteDesign) return renderSite(draft, options);
     const files = materializeSiteFiles(await this.storedSiteFiles(draft), draft, {
       assetUrl: options.assetUrl,
-      inquiryUrl: new URL(options.inquiryUrl, this.origin()).href,
+      inquiryUrl: new URL(options.inquiryUrl, this.env.PUBLIC_SITE_ORIGIN||this.origin()).href,
       basePath,
     });
     const path = siteFilePath(
@@ -3382,7 +3394,7 @@ export class DomainService {
     validateSiteFiles(result.files, draft);
     // Validate the expanded publication, including URLs/CSP, against the actual Pages limit.
     materializeSiteFiles(result.files, draft, {
-      assetUrl: (id) => `${this.origin()}/public/sites/${job.projectId}/assets/${id}`,
+      assetUrl: (id) => `${this.env.PUBLIC_SITE_ORIGIN||this.origin()}/public/sites/${job.projectId}/assets/${id}`,
       inquiryUrl: `/api/public/sites/${job.projectId}/inquiries`,
     });
     const artifactKey = `projects/${job.projectId}/sites/${job.id}.json`;

@@ -1,0 +1,8 @@
+[Unit]
+Description=Check pending Web Radar website domains
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+Persistent=true
+[Install]
+WantedBy=timers.target

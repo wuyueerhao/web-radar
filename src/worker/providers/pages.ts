@@ -211,7 +211,7 @@ export async function publishPages(
     (account) => account.accountId === target.accountId,
   )!.apiToken;
   if (!env.APP_ORIGIN) throw new ProviderError('pages_unconfigured', 'APP_ORIGIN 发布网关尚未配置');
-  const origin = new URL(endpoint(env.APP_ORIGIN, '')).origin;
+  const origin = new URL(endpoint(env.PUBLIC_SITE_ORIGIN||env.APP_ORIGIN, '')).origin;
   const sourceEntries = [...Object.entries(files), ...Object.entries(previous?.files ?? {})];
   if (!Object.keys(files).length || sourceEntries.length > 100 || sourceEntries.some(([path,content]) => !path.endsWith('.html') || path.startsWith('/') || path.includes('..') || path.includes('\\') || path.includes('\0') || typeof content !== 'string')) throw new ProviderError('pages_artifacts_invalid', '网站产物路径或内容无效');
   const siteOrigin = `https://${target.pagesProjectName}.pages.dev`;

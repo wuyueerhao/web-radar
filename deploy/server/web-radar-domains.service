@@ -1,0 +1,8 @@
+[Unit]
+Description=Web Radar server website HTTPS provisioner
+After=network-online.target web-radar-server.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/web-radar/current/scripts/server/provision-domains.py
+TimeoutStartSec=15min
+UMask=0027

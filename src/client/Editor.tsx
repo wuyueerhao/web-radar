@@ -1,3 +1,5 @@
+import { DeploymentSettings } from './DeploymentSettings';
+import { matchesDeployment } from '../shared/deployment';
 import { blocksModeChange, withBuildMode } from '../shared/build-mode';
 import { CompanyFields } from './CompanyFields';
 import { BannerEditor, editableBanners, type BannerUploadSlot } from './BannerEditor';
@@ -744,7 +746,7 @@ export default function Editor({
     );
   const draft = project.draft;
   const onlineRelease = detail.releases.find(release => release.id === project.publishedReleaseId && release.status === 'succeeded');
-  const alreadyPublished = !project.offline && !!onlineRelease?.draft && samePublishedDraft(draft, onlineRelease.draft);
+  const alreadyPublished = !project.offline && !!onlineRelease?.draft && samePublishedDraft(draft, onlineRelease.draft) && (!project.deployment || matchesDeployment(onlineRelease.hostingTarget,project.deployment,true));
   const activeJobs = detail.jobs.filter((job) =>
     ['queued', 'running', 'unknown'].includes(job.status),
   );
@@ -1683,6 +1685,7 @@ export default function Editor({
               <Button kind="primary" onClick={()=>setPublishSection('check')}>检查并发布网站 <Icon name="arrow"/></Button>
               </>}
               {publishSection==='check' && <>
+              <DeploymentSettings project={project} disabled={dirty||!!busy||activeJobs.some(j=>j.kind==='publish')} onSaved={()=>refresh()}/>
               <section className="panel">
                 <SectionTitle
                   title="发布前检查"

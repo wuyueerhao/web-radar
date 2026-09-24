@@ -306,7 +306,14 @@ export interface Draft {
   consultation?: SiteConsultation;
   cloneConfig?: CloneConfig;
 }
+export interface DeploymentSelection {
+  provider: 'cloudflare' | 'server';
+  credentialId?: string;
+  accountId?: string;
+}
 export interface HostingTarget {
+  provider?: 'cloudflare' | 'server';
+  credentialId?: string;
   accountId: string;
   pagesProjectName: string;
 }
@@ -325,6 +332,7 @@ export interface Project {
   offline: boolean;
   siteUrl?: string;
   hostingTarget?: HostingTarget;
+  deployment?: DeploymentSelection;
 }
 export interface Asset {
   id: string;

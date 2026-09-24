@@ -7,7 +7,10 @@
 - 管理后台：https://web.vnvnv.com ，继续使用原有 Product Radar 账户登录。
 - Cloudflare 原站 https://web-radar.net 保留运行；两套数据库和上传素材独立，后续修改不自动同步。
 - 服务器上的已发布网站使用 `https://项目ID.sites-server.web-radar.net`，与管理后台不同源。
-- 原有 Cloudflare 自定义域名继续指向原站。服务器副本归档这些绑定，禁止调用原 Cloudflare 账户进行写操作；服务器自定义域名绑定界面暂不可用。
+- 原有 Cloudflare 自定义域名继续指向原站。服务器副本归档这些绑定；新增 Cloudflare 发布使用独立 `wrs-` 项目，禁止写入原 `wr-` 项目。
+- 新项目默认 Cloudflare，复制的现有项目保持服务器托管。在「预览与发布 → 发布检查 → 网站发布位置」保存选择，再发布。切换已有站点需确认，并先解绑自定义域名；新发布失败时原成功版本仍提供服务。
+- 「上线管理 → 自定义域名」按实际发布位置创建 CNAME（Cloudflare）或 A（服务器）。服务器域名使用仅 DNS 模式，后台自动申请 HTTPS；有冲突的解析不会覆盖。
+- 公共素材与发布网关使用 `https://public-server.web-radar.net`；该域名仅开放公开站点资源、签名素材与询盘接口，后台登录/API 不可从该域名访问。素材仍存放在本服务器，Cloudflare 网站的素材、询盘与发布状态检查依赖服务器可用性。
 - 外部身份服务、模型、Resend 等仍使用原有服务账户及其配额。复制部署不代表这些第三方服务也被迁入服务器。
 - 复制的 Resend webhook ID/签名密钥已清除；如需服务器独立接收事件，应在副本中重新连接 webhook，不覆盖 Cloudflare 原回调。
 
@@ -76,7 +79,7 @@ sh deploy/server/network-isolation.sh
 3. 更新 `/etc/web-radar/server.env` 的 `APP_ORIGIN` 和 `SITE_BUILDER_URL`（后者以 `/builder` 结尾）。
 4. 重建 API 容器并刷新网络隔离规则。
 5. 重新连接服务器 Resend webhook 到新地址；保留 Cloudflare 原回调。
-6. 已发布服务器站点包含后台素材地址。保留旧后台域名重定向，或在副本重新发布这些站点以更新地址。
+6. 保持 `PUBLIC_SITE_ORIGIN=https://public-server.web-radar.net` 不变。新的发布与已更新的服务器缓存使用该独立素材域名；外部旧链接建议保留旧后台域名重定向。
 7. 独立网站通配符域名可继续保留；如也更换，应另行迁移站点 URL、证书和历史链接。
 
 ## 已验收范围
@@ -84,3 +87,15 @@ sh deploy/server/network-isolation.sh
 快照：21 个项目、807 条素材记录、2014 个对象、17656 个联系人；8 个已发布网站。复制时邮件活动、站内信任务及发送队列均为空，29 个网站任务已完成。
 
 通过原账户身份服务验证、页面读取、SQLite 完整性、浏览器公开导航及元数据拦截、生成服务 Chromium 渲染、图片预览 API。没有为验收向真实收件人发信，也没有提交真实站外联系表单；付费模型生成和邮件送达须以之后真实任务结果为准。
+
+## 发布与域名运维
+
+- `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` 为默认发布账号，仅存服务器环境文件；页面返回账号标识，不返回密钥。额外账号可在平台管理或网站上线管理中添加，需要 Pages Edit、Zone Read、DNS Edit 权限。
+- `SERVER_INSTANCE_ID` 必须稳定，参与新 Pages 项目命名与 DNS 所有权标记。不要在部署中随意更改。
+- `SERVER_PUBLIC_IP` 决定服务器域名的 A 记录，当前为 `47.236.26.22`。
+- `web-radar-domains.timer` 每分钟检查待配置的服务器域名；失败域名最多每十分钟尝试一次。检查 `journalctl -u web-radar-domains.service`。
+- 自动证书要求域名 DNS 指向本服务器，80/443 可达，CAA 允许 Let's Encrypt。已存在代理记录请先在 DNS 后台改为仅 DNS。
+- 网站 vhost 位于宝塔 Nginx 目录 `wr-site-<hash>.conf`；仅清理该命名空间中已解绑的配置，不修改其他宝塔站点。
+- 证书生效后可刷新绑定状态；重新发布会将 canonical 与 sitemap 切换到已生效的自定义域名。
+- 设置 API：`GET/PUT /api/projects/:id/deployment`，需项目管理权限。PUT 带 `expectedVersion`、`provider`，Cloudflare 还需 `credentialId`、`accountId`，迁移已发布项目需 `confirmMigration: true`。
+- 不能在发布进行中更换部署位置或修改绑定；不会自动搬迁现有自定义域名。

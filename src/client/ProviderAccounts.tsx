@@ -333,7 +333,7 @@ export function WebsiteConnections({
                     ? '已生效'
                     : d.status === 'pending'
                       ? '等待 DNS / HTTPS 证书生效'
-                      : d.status}
+                      : d.status === 'pending_tls' ? '正在配置 HTTPS（通常需要几分钟）' : d.status === 'tls_failed' ? 'HTTPS 配置失败，请检查 DNS 后刷新重试' : d.status}
                 </p>
                 {d.status === 'active' && (
                   <a href={`https://${d.hostname}`} target="_blank" rel="noreferrer">
@@ -449,8 +449,7 @@ export function WebsiteConnections({
                 将绑定：<strong>{hostname}</strong>。{' '}
               </>
             )}
-            跨 Cloudflare 账号使用 www
-            等子域名；根域名需要与网站发布账号一致。已有解析冲突时不会覆盖原记录。
+            {data.hostingProvider==='server' ? `域名将解析到服务器 ${data.serverAddress||''}，自动申请 HTTPS。请保持 DNS 仅解析模式并等待证书生效。` : '跨 Cloudflare 账号使用 www 等子域名；根域名需要与网站发布账号一致。'}已有解析冲突时不会覆盖原记录。
           </p>
           <Button
             kind="primary"

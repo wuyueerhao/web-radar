@@ -28,4 +28,17 @@ export interface SiteConnections {
   resendAccountId: string | null;
   environmentEmail: boolean;
   published: boolean;
+  hostingProvider?: 'cloudflare' | 'server';
+  serverAddress?: string;
+}
+
+export interface DeploymentOptions {
+  enabled: boolean;
+  selection: import('./model').DeploymentSelection;
+  currentProvider: 'cloudflare' | 'server' | null;
+  currentUrl: string | null;
+  pendingChange: boolean;
+  accounts: { credentialId: string; accountId: string; label: string }[];
+  warnings: string[];
+  publicOrigin?: string;
 }

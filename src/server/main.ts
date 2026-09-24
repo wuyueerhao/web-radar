@@ -6,6 +6,7 @@ import app from '../worker/app';
 import { DomainService } from '../worker/domain-service';
 import type { AppEnv } from '../worker/env';
 import { serverProviders, hostedSite } from './hosting';
+import { allowCloudflareMutation } from './cloudflare-guard';
 import { outreachQueue } from '../worker/outreach';
 // @ts-ignore Node-only adapter is separately tested with node:test.
 import { LocalDatabase } from './sqlite.mjs';
@@ -72,14 +73,13 @@ const timer=setInterval(()=>{
   }
 },1000);
 
-// Clone instances may never mutate the original hosting account. This is also
-// enforced at the network boundary, beyond UI/API route guards.
+// Enforce independent Pages/DNS ownership at the network boundary.
 const nativeFetch=globalThis.fetch;
-globalThis.fetch=((input:RequestInfo|URL,init?:RequestInit)=>{
+globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
   const url=new URL(input instanceof Request?input.url:String(input));
   const method=(init?.method||(input instanceof Request?input.method:'GET')).toUpperCase();
-  if(url.hostname==='api.cloudflare.com'&&!['GET','HEAD'].includes(method))
-    throw new Error('Cloudflare mutations are disabled in the independent server copy');
+  if(!await allowCloudflareMutation(env,url,method,init?.body??(input instanceof Request?await input.clone().text():undefined)))
+    throw new Error('Cloudflare operation is outside this server’s managed namespace');
   const options:any={...init};
   if(options.body instanceof ReadableStream) options.duplex='half';
   return nativeFetch(input,options);
@@ -94,19 +94,24 @@ const server=createServer(async(req,res)=>{
     for(const [name,value] of Object.entries(req.headers)) if(value) headers.set(name,Array.isArray(value)?value.join(', '):value);
     const host=headers.get('host')||'';
     const siteHost=!!env.SERVER_SITE_SUFFIX&&host.endsWith('.'+env.SERVER_SITE_SUFFIX);
-    if(host!==origin.host&&!siteHost) {res.writeHead(421).end('Unknown host');return;}
+    const publicHost=!!env.PUBLIC_SITE_ORIGIN&&host===new URL(env.PUBLIC_SITE_ORIGIN).host;
+    const custom=(!siteHost&&!publicHost&&host!==origin.host)?db.sqlite.prepare("SELECT project_id FROM project_domains WHERE hostname=? AND status='active'").get(host):null;
+    if(host!==origin.host&&!siteHost&&!publicHost&&!custom) {res.writeHead(421).end('Unknown host');return;}
     headers.delete('x-wr-principal');
     headers.set('cf-connecting-ip',process.env.TRUST_LOCAL_PROXY==='true'?(headers.get('x-real-ip')||req.socket.remoteAddress||'unknown'):(req.socket.remoteAddress||'unknown'));
-    const request=new Request(new URL(path,siteHost?'https://'+host:origin),{method:req.method,headers,...(!['GET','HEAD'].includes(req.method||'GET')?{body:Readable.toWeb(req),duplex:'half'}:{})} as RequestInit);
+    const request=new Request(new URL(path,(siteHost||publicHost||custom)?'https://'+host:origin),{method:req.method,headers,...(!['GET','HEAD'].includes(req.method||'GET')?{body:Readable.toWeb(req),duplex:'half'}:{})} as RequestInit);
     let response:Response;
     const pathname=new URL(request.url).pathname;
-    if(siteHost) {
-      response=await hostedSite(request,env,domain);
+    if(siteHost||custom) {
+      response=await hostedSite(request,env,domain,custom?.project_id);
+    } else if(publicHost) {
+      const allowed=/^\/public\/sites\//.test(pathname)||/^\/public\/provider-assets\//.test(pathname)||/^\/api\/public\/sites\/[^/]+\/inquiries$/.test(pathname)||/^\/templates\//.test(pathname);
+      headers.delete('cookie');headers.delete('authorization');
+      response=allowed?await app.fetch(new Request(request,{headers}),env,context):new Response('Not found',{status:404});
     } else if(pathname==='/api/server/readiness') {
       db.sqlite.prepare('SELECT 1').get();
       response=Response.json({ok:true,runtime:'node',independentCopy:true,tasksEnabled:process.env.SERVER_TASKS_ENABLED==='true'});
     } else if(req.method!=='GET'&&req.method!=='HEAD'&&(
-      /^\/api\/projects\/[^/]+\/domains(?:\/|$)/.test(pathname)||
       (process.env.SERVER_TASKS_ENABLED!=='true' && /\/(generate|start|send|retry|resume|refresh|sync|clone|build)(?:\/|$)/.test(pathname))
     )) {
       response=Response.json({code:'server_copy_isolated',message:'服务器副本保留原 Cloudflare 域名绑定；当前操作暂不可用。'},{status:409});
@@ -114,7 +119,7 @@ const server=createServer(async(req,res)=>{
       response=await app.fetch(request,env,context);
       if(pathname==='/api/config'&&response.ok) {
         const config=await response.json() as any;
-        config.services=config.services.map((service:any)=>service.name==='pages'?{...service,configured:true,mode:'live',detail:'独立服务器托管，不修改原 Cloudflare 网站'}:service);
+        config.services=config.services.map((service:any)=>service.name==='pages'?{...service,configured:true,mode:'live',detail:'支持 Cloudflare 与服务器发布，使用独立部署项目'}:service);
         response=Response.json({...config,independentCopy:true},{headers:response.headers});
       }
     }
