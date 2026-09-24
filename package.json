@@ -16,7 +16,9 @@
     "release:production": "node scripts/release-production.mjs",
     "types": "wrangler types",
     "check": "npm run typecheck && npm test && npm run build",
-    "db:local": "wrangler d1 migrations apply web-radar --local"
+    "db:local": "wrangler d1 migrations apply web-radar --local",
+    "build:server": "npm run build && node scripts/server/build.mjs",
+    "test:server": "node --test scripts/server/*.test.mjs"
   },
   "dependencies": {
     "hono": "4.13.7",

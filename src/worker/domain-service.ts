@@ -3158,7 +3158,7 @@ export class DomainService {
     const domain = await this.env.DB.prepare("SELECT hostname FROM project_domains WHERE project_id=? AND status='active' ORDER BY created_at ASC, hostname ASC LIMIT 1")
       .bind(project.id).first<{hostname:string}>();
     return {
-      origin: domain ? `https://${domain.hostname}` : project.hostingTarget ? `https://${project.hostingTarget.pagesProjectName}.pages.dev` : undefined,
+      origin: this.env.SERVER_SITE_SUFFIX ? `https://${project.id}.${this.env.SERVER_SITE_SUFFIX}` : domain ? `https://${domain.hostname}` : project.hostingTarget ? `https://${project.hostingTarget.pagesProjectName}.pages.dev` : undefined,
       draft,
       assetUrl: id => `${this.origin()}/public/sites/${project.id}/assets/${encodeURIComponent(id)}`,
     };

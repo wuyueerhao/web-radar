@@ -1,0 +1,59 @@
+name: web-radar-server
+services:
+  api:
+    image: node:24-bookworm-slim@sha256:0e0ff40c39bc087845bfb27465a0df4ea419520094bc35842ff83dd8cbe6f9b6
+    user: "1000:1000"
+    working_dir: /app
+    command: ["node", "dist-server/main.mjs"]
+    env_file: /etc/web-radar/server.env
+    volumes:
+      - ../../dist-server:/app/dist-server:ro
+      - ../../dist:/app/dist:ro
+      - /srv/web-radar/data:/data
+    ports: ["127.0.0.1:3000:3000"]
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs: ["/tmp:size=128m,mode=1777"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 3g
+    stop_grace_period: 3m
+    logging: {driver: json-file, options: {max-size: "10m", max-file: "3"}}
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('node:http').get('http://127.0.0.1:3000/api/server/readiness',{headers:{Host:new URL(process.env.APP_ORIGIN).host}},r=>{r.resume();process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  builder:
+    image: web-radar-builder:20260924
+    build: {context: ../.., dockerfile: deploy/server/Dockerfile.builder}
+    env_file: /etc/web-radar/builder.env
+    volumes: ["/srv/web-radar/builder:/data"]
+    ports: ["127.0.0.1:7002:7002"]
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs: ["/tmp:size=1g,mode=1777", "/home/builder/.cache:size=256m,uid=1000,gid=1000"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    shm_size: 1g
+    mem_limit: 5g
+    stop_grace_period: 3m
+    logging: {driver: json-file, options: {max-size: "10m", max-file: "3"}}
+  browser:
+    image: ${BROWSER_IMAGE:?Set the verified browser image digest}
+    env_file: /etc/web-radar/browser.env
+    environment:
+      CONCURRENT: "1"
+      QUEUED: "2"
+      TIMEOUT: "180000"
+      ALLOW_FILE_PROTOCOL: "false"
+      DEBUG: "-*"
+    restart: unless-stopped
+    init: true
+    shm_size: 1g
+    mem_limit: 3g
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    logging: {driver: json-file, options: {max-size: "10m", max-file: "3"}}

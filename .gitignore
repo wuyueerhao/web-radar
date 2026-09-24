@@ -1,4 +1,6 @@
 node_modules/
+node_modules
+dist-server/
 dist/
 .wrangler/
 .dev.vars*

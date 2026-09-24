@@ -1,0 +1,18 @@
+[Unit]
+Description=Web Radar independent server copy
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/web-radar/current
+ExecStart=/usr/bin/docker compose --env-file /etc/web-radar/compose.env -f deploy/server/compose.yml up -d --no-build
+ExecStartPost=/bin/sh /opt/web-radar/current/deploy/server/network-isolation.sh
+ExecStop=/usr/bin/docker compose --env-file /etc/web-radar/compose.env -f deploy/server/compose.yml stop
+TimeoutStartSec=180
+TimeoutStopSec=240
+
+[Install]
+WantedBy=multi-user.target
