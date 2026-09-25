@@ -100,6 +100,15 @@ sh deploy/server/network-isolation.sh
 - 设置 API：`GET/PUT /api/projects/:id/deployment`，需项目管理权限。PUT 带 `expectedVersion`、`provider`，Cloudflare 还需 `credentialId`、`accountId`，迁移已发布项目需 `confirmMigration: true`。
 - 不能在发布进行中更换部署位置或修改绑定；不会自动搬迁现有自定义域名。
 
+## 页面资源与性能
+
+- Nginx 需要 1.25.1 以上版本，并编译 HTTP/2、gzip_static 模块。HTTPS 启用 HTTP/2，支持并发加载项目图片与接口。
+- 将 `deploy/server/static-assets.conf`、`static-templates.conf` 连同 `nginx.conf` 部署到 `/opt/web-radar/current/deploy/server`；验证 `nginx -t` 后重载。主控制台的 `/assets/`、主控制台与公开素材域名的 `/templates/` 直接读取 `dist`，不经过 Node。
+- `npm run build:server` 为 JS/CSS 等生成 gzip 副本。部署时一并复制 `.gz` 并保留文件时间；Nginx 根据浏览器能力选择压缩文件，原文件仍可使用。更新资源时必须同步对应 gzip 副本，避免旧副本与原文件不一致。
+- 带内容哈希的 `/assets/` 缓存一年；公开模板素材缓存一小时并提供 ETag、视频范围请求。部署时保留上一版本的哈希资源，避免已打开页面动态加载旧模块失败。不要覆盖相同哈希名的内容。
+- 首页 HTML 保持 `no-store`，及时获取最新入口；私人素材、账户和业务 API 继续走应用鉴权及 `no-store`，不可加入公开静态目录或共享缓存。
+- 修改本节的 Nginx 配置无需重启 API 容器，不中断后台任务。回滚时先恢复备份 vhost，验证配置后重载；新静态文件可以保留。
+
 ## 账户服务连接
 
 - 服务器针对 `PRODUCT_RADAR_BASE_URL` 的精确来源地址使用独立连接池，最多 4 条连接、空闲复用上限 60 秒；上游可提前关闭连接。TLS 校验保持开启，不固定 Cloudflare IP，也不修改其他服务商的连接池。
