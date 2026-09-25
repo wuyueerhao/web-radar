@@ -2398,3 +2398,11 @@ textarea::placeholder {
 .build-mode-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .build-mode-switcher > small { flex-basis: 100%; color: var(--muted); }
 @media(max-width:640px) { .build-mode-switcher { padding: 14px; } .build-mode-options { width: 100%; } .build-mode-options > button { flex: 1; } }
+
+/* Explicit navigation remains visible in both desktop and narrow preview toolbars. */
+.editor-home-link { display: inline-flex; color: inherit; text-decoration: none; border-radius: 8px; }
+.editor-home-link:focus-visible { outline: 2px solid var(--forest); outline-offset: 4px; }
+.preview-toolbar .preview-back { flex-shrink: 0; white-space: nowrap; }
+@media (max-width: 640px) {
+  .preview-title-group > :is(.preview-lock, strong, .muted) { display: none; }
+}

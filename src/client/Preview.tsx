@@ -285,7 +285,11 @@ export function SitePreview({
   return (
     <div className="preview-overlay" role="dialog" aria-modal="true" aria-label="私有整站预览">
       <div className="preview-toolbar">
-        <div>
+        <div className="preview-title-group">
+          <Button onClick={onClose} className="preview-back">
+            <Icon name="back" />
+            {draftPreview ? '返回选择模板' : '返回编辑'}
+          </Button>
           <span className="preview-lock">
             <Icon name="lock" />
           </span>

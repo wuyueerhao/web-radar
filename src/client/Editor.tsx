@@ -97,6 +97,7 @@ export default function Editor({
   testMode,
   embedded = false,
   onBack,
+  onHome,
 }: {
   projectId: string;
   principal: Principal;
@@ -104,6 +105,7 @@ export default function Editor({
   testMode: boolean;
   embedded?: boolean;
   onBack: () => void;
+  onHome: () => void;
 }) {
   const [seoReport, setSeoReport] = useState<(SeoReport & {version:number; origin:string|null; needsPublish:boolean}) | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -145,7 +147,7 @@ export default function Editor({
     try {
       const url = new URL(window.location.href);
       url.searchParams.set('tab', tab);
-      window.history.replaceState({}, '', url.toString());
+      window.history.replaceState(window.history.state, '', url.toString());
     } catch {}
   }, [tab,project?.id]);
   const [dirty, setDirty] = useState(false),
@@ -164,6 +166,38 @@ export default function Editor({
     [applyIds, setApplyIds] = useState<string[]>([]),
     [previewOpen, setPreviewOpen] = useState(false);
   const [previewProject, setPreviewProject] = useState<Project | null>(null);
+  const previewRef = useRef(false);
+  const previewSnapshot = useRef<Project | null>(null);
+  const leaveTarget = useRef<'projects' | 'home'>('projects');
+  const navigation = useRef({ onBack, onHome });
+  navigation.current = { onBack, onHome };
+  function finishLeave() {
+    if (leaveTarget.current === 'home') navigation.current.onHome();
+    else navigation.current.onBack();
+  }
+  function requestLeave(target: 'projects' | 'home' = 'projects') {
+    leaveTarget.current = target;
+    if (hasUnsavedChanges()) setLeaveOpen(true);
+    else finishLeave();
+  }
+  function showPreview(snapshot: Project | null = null) {
+    if (previewRef.current) return;
+    previewSnapshot.current = snapshot;
+    window.history.pushState({ ...window.history.state, wrPreview: projectId }, '', window.location.href);
+    previewRef.current = true;
+    setPreviewProject(snapshot);
+    setPreviewOpen(true);
+  }
+  function closePreview() {
+    if (window.history.state?.wrPreview === projectId) {
+      window.history.back();
+    } else {
+      previewRef.current = false;
+      setPreviewOpen(false);
+      setPreviewProject(null);
+    }
+  }
+
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [releaseAction, setReleaseAction] = useState<'publish' | 'restore' | 'offline' | null>(
     null,
@@ -279,17 +313,33 @@ export default function Editor({
     window.addEventListener('beforeunload', prevent);
 
     try {
-      window.history.pushState({ wrEditor: projectId }, '', window.location.href);
+      if (window.history.state?.wrEditor !== projectId)
+        window.history.pushState({ ...window.history.state, wrEditor: projectId }, '', window.location.href);
     } catch {}
 
-    const onPopState = () => {
+    const onPopState = (event: PopStateEvent) => {
+      // The preview owns one history entry. Back closes it without leaving the editor;
+      // Forward restores it. Ignore iframe history events while that entry is active.
+      if (event.state?.wrPreview === projectId) {
+        previewRef.current = true;
+        setPreviewProject(previewSnapshot.current);
+        setPreviewOpen(true);
+        return;
+      }
+      if (previewRef.current) {
+        previewRef.current = false;
+        setPreviewOpen(false);
+        setPreviewProject(null);
+        return;
+      }
+      leaveTarget.current = 'projects';
       if (dirtyRef.current || savingRef.current || uploadStateRef.current || cloneActivityRef.current) {
         try {
           window.history.pushState({ wrEditor: projectId }, '', window.location.href);
         } catch {}
         setLeaveOpen(true);
       } else {
-        onBack();
+        navigation.current.onBack();
       }
     };
 
@@ -299,7 +349,7 @@ export default function Editor({
       window.removeEventListener('beforeunload', prevent);
       window.removeEventListener('popstate', onPopState);
     };
-  }, [projectId, onBack]);
+  }, [projectId]);
   useEffect(()=>{
     if(!dirty||!project||busy||conflict||autoSaveFailed.current===project||detail?.jobs.some(j=>j.kind==='clone'&&['queued','running','paused'].includes(j.status)))return;
     const timer=setTimeout(()=>{
@@ -658,7 +708,7 @@ export default function Editor({
   async function openPreview() {
     await action('preview', async () => {
       await save();
-      setPreviewOpen(true);
+      showPreview();
     });
   }
   async function publishAction() {
@@ -738,7 +788,7 @@ export default function Editor({
             正在打开网站工作室…
           </p>
         )}
-        <Button onClick={() => (hasUnsavedChanges() ? setLeaveOpen(true) : onBack())}>
+        <Button onClick={() => requestLeave()}>
           <Icon name="back" />
           返回网站列表
         </Button>
@@ -787,12 +837,14 @@ export default function Editor({
         <div className="editor-brand">
           <Button
             kind="quiet"
-            onClick={() => (hasUnsavedChanges() ? setLeaveOpen(true) : onBack())}
+            onClick={() => requestLeave()}
             aria-label="返回网站列表"
           >
             <Icon name="back" />
           </Button>
-          <Brand />
+          <a className="editor-home-link" href="?view=dashboard" aria-label="Web Radar · 返回控制台首页" onClick={event => { event.preventDefault(); requestLeave('home'); }}>
+            <Brand />
+          </a>
           <span className="editor-slash">/</span>
           <div className="editor-project-name">
             <strong>{project.name}</strong>
@@ -1423,8 +1475,7 @@ export default function Editor({
                   <TemplateSelector
                     onPreview={(template) => {
                       const current = projectRef.current!;
-                      setPreviewProject({ ...current, draft: { ...current.draft, buildBranch: 'template', template: template.id, brandColor: template.accentColor, cloneConfig: undefined, siteDesign: undefined } });
-                      setPreviewOpen(true);
+                      showPreview({ ...current, draft: { ...current.draft, buildBranch: 'template', template: template.id, brandColor: template.accentColor, cloneConfig: undefined, siteDesign: undefined } });
                     }}
                     draft={draft}
                     onUpdateDraft={(patchObj) => patch(patchObj)}
@@ -2156,7 +2207,7 @@ export default function Editor({
           ) : saving ? (
             <p>正在向服务器保存当前草稿，请稍候…</p>
           ) : (
-            <p>您有尚未保存的修改。保存后返回网站列表，可以稍后从相同草稿继续。</p>
+            <p>您有尚未保存的修改。保存后离开，可以稍后从相同草稿继续。</p>
           )}
           <div className="modal-actions">
             <Button
@@ -2173,7 +2224,7 @@ export default function Editor({
                 } catch {}
                 setHasBackup(false);
                 setLeaveOpen(false);
-                onBack();
+                finishLeave();
               }}
             >
               放弃修改并返回
@@ -2190,7 +2241,7 @@ export default function Editor({
                     } catch {}
                     setHasBackup(false);
                     setLeaveOpen(false);
-                    onBack();
+                    finishLeave();
                   })
                 }
               >
@@ -2201,7 +2252,7 @@ export default function Editor({
           </div>
         </Modal>
       )}
-      {previewOpen && <SitePreview project={previewProject || project} draftPreview={!!previewProject} onClose={() => { setPreviewOpen(false); setPreviewProject(null); }} />}
+      {previewOpen && <SitePreview project={previewProject || project} draftPreview={!!previewProject} onClose={closePreview} />}
       {releaseAction && (
         <Modal
           title={

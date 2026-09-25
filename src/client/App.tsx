@@ -138,7 +138,9 @@ export default function App() {
         url.searchParams.delete('project');
         url.searchParams.delete('tab');
       }
-      window.history.replaceState({}, '', url.toString());
+      const state = { ...window.history.state };
+      if (!selected) { delete state.wrEditor; delete state.wrPreview; }
+      window.history.replaceState(state, '', url.toString());
     } catch {}
   }, [selected]);
   useEffect(() => {
@@ -149,7 +151,7 @@ export default function App() {
       } else {
         url.searchParams.delete('view');
       }
-      window.history.replaceState({}, '', url.toString());
+      window.history.replaceState(window.history.state, '', url.toString());
     } catch {}
   }, [view]);
   const exchanging = useRef(new HandoffAttempts());
@@ -337,7 +339,8 @@ export default function App() {
               services={config?.services || []}
               testMode={!!config?.testMode}
               embedded={embedded}
-              onBack={() => setSelected(null)}
+              onBack={() => { setSelected(null); setView('projects'); }}
+              onHome={() => { setSelected(null); setView('dashboard'); }}
             />
           </Suspense>
         </ErrorBoundary>
