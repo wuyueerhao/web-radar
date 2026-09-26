@@ -78,6 +78,7 @@ export function CampaignsPage() {
     senderName: "",
     replyTo: "",
     sendRate: 50,
+    replyTracking: true,
   });
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
@@ -198,7 +199,7 @@ export function CampaignsPage() {
         addToast("success", "活动已更新");
         setShowModal(false);
         setEditId(null);
-        setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50 });
+        setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50, replyTracking: true });
         loadCampaigns();
         return;
       }
@@ -220,7 +221,7 @@ export function CampaignsPage() {
 
       addToast("success", `活动已创建，添加了 ${added} 个收件人`);
       setShowModal(false);
-      setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50 });
+      setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50, replyTracking: true });
       setSelectedGroups([]);
       setSelectedContacts([]);
       loadCampaigns();
@@ -237,6 +238,7 @@ export function CampaignsPage() {
       senderName: c.senderName,
       replyTo: c.replyTo || "",
       sendRate: c.sendRate || 50,
+      replyTracking: !!c.replyTracking,
     });
     setEditId(c.id);
     setSelectedGroups([]);
@@ -332,7 +334,7 @@ export function CampaignsPage() {
           </div>
           <button className="btn btn-primary" onClick={() => {
             setEditId(null);
-            setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50 });
+            setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50, replyTracking: true });
             setSelectedGroups([]);
             setSelectedContacts([]);
             setShowModal(true);
@@ -360,7 +362,7 @@ export function CampaignsPage() {
               <p>创建你的第一个邮件营销活动</p>
               <button className="btn btn-primary" onClick={() => {
                 setEditId(null);
-                setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50 });
+                setForm({ name: "", templateId: "", senderEmail: "", senderName: "", replyTo: "", sendRate: 50, replyTracking: true });
                 setSelectedGroups([]);
                 setSelectedContacts([]);
                 setShowModal(true);
@@ -445,6 +447,7 @@ export function CampaignsPage() {
                       </td>
                       <td>
                         <div className="flex gap-sm" style={{ flexWrap: "wrap" }}>
+                          <a className="btn btn-ghost btn-sm" href={'/?view=inbox&inboxSource=edm&inboxBusiness='+encodeURIComponent(c.id)}>客户回复</a>
                           <button className="btn btn-ghost btn-sm" onClick={() => loadDetail(c.id)} title="查看详情">
                             查看
                           </button>
@@ -542,7 +545,7 @@ export function CampaignsPage() {
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div className="form-group">
-                    <label className="form-label">回复地址</label>
+                    <label><input type="checkbox" checked={form.replyTracking} onChange={e=>setForm({...form,replyTracking:e.target.checked})}/>自动追踪回复（需启用收信配置）</label><label className="form-label">回复地址</label>
                     <input
                       className="form-input"
                       type="email"

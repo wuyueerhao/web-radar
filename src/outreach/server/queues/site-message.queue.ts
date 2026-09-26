@@ -1,3 +1,4 @@
+import { trackedAddress } from '../../../worker/inbox/core';
 import { assertPublicReference } from "../../../worker/reference-fetch";
 import { publicFetch as fetch } from "../lib/network";
 import puppeteer from "@cloudflare/puppeteer";
@@ -420,7 +421,7 @@ async function fillAndSubmit(
     unknown: "",
   };
 
-  const senderDomain = String(job.senderEmail || "").split("@")[1] || "";
+  const senderDomain = String(job.originalSenderEmail || job.senderEmail || "").split("@")[1] || "";
   const inferRequiredValue = (field: DetectedField) => {
     const label = field.label.toLowerCase();
     if (CAPTCHA_PATTERN.test(label) || /(password|passcode|one[\s_-]?time|\botp\b|security[\s_-]?code)/i.test(label)) return "";
@@ -1058,7 +1059,8 @@ export async function runSiteMessageJob(jobId: string, env: Bindings) {
             catch {await request.abort().catch(()=>{});}
           });
 
-          await processTargetInPage(page, target, job, db, jobId);
+          const replyAddress = await trackedAddress(env.DB, 'site', target.id, job.message, job.subject || 'General inquiry');
+          await processTargetInPage(page, target, replyAddress ? {...job, originalSenderEmail: job.senderEmail, senderEmail: replyAddress} : job, db, jobId);
           break;
         } catch (error: any) {
           const execErrorMsg = error?.message || "网页抓取与提交执行失败";

@@ -33,6 +33,7 @@ import {
 const Editor = lazy(() => import('./Editor'));
 const Dashboard = lazy(() => import('./Dashboard'));
 const Outreach = lazy(() => import('../outreach/client/App'));
+const CustomerInbox = lazy(() => import('./CustomerInbox'));
 const UserManagement = lazy(() => import('./UserManagement'));
 const Admin = lazy(() => import('./Admin'));
 import { ErrorBoundary } from './ErrorBoundary';
@@ -60,10 +61,10 @@ export default function App() {
         return null;
       }
     });
-  const [view, setView] = useState<'dashboard' | 'projects' | 'users' | 'business' | 'admin' | 'services' | 'edm' | 'site-messages'>(() => {
+  const [view, setView] = useState<'inbox' | 'dashboard' | 'projects' | 'users' | 'business' | 'admin' | 'services' | 'edm' | 'site-messages'>(() => {
       try {
         const v = new URL(window.location.href).searchParams.get('view');
-        if (v === 'business' || v === 'users' || v === 'dashboard' || v === 'projects' || v === 'admin' || v === 'services' || v === 'edm' || v === 'site-messages') return v;
+        if (v === 'inbox' || v === 'business' || v === 'users' || v === 'dashboard' || v === 'projects' || v === 'admin' || v === 'services' || v === 'edm' || v === 'site-messages') return v;
       } catch {}
       return 'dashboard';
     }),
@@ -323,6 +324,7 @@ export default function App() {
                 <Icon name="globe" />
                 服务状态
               </button>
+              <button className={view === 'inbox' ? 'active' : ''} onClick={() => setView('inbox')}><Icon name="mail"/>客户收件箱</button>
               {manageUsers(principal) && <button className={view === 'users' ? 'active' : ''} onClick={() => setView('users')}><Icon name="users"/>用户管理</button>}
               {viewTeamData(principal) && <button className={view === 'business' ? 'active' : ''} onClick={() => {setBusinessMember(null);setView('business')}}><Icon name="chart"/>业务数据</button>}
               {principal.systemRole === 'super_admin' && (
@@ -366,6 +368,8 @@ export default function App() {
               <ErrorBoundary scope="section" title="营销功能加载异常" description="请重试或返回网站项目。" onBack={()=>setView('projects')} backText="返回网站项目">
                 <Suspense fallback={<ChunkFallback/>}><Outreach key={`${principal.userId}:${principal.workspaceId}`} principal={principal} section={view}/></Suspense>
               </ErrorBoundary>
+            ) : view === 'inbox' ? (
+              <Suspense fallback={<ChunkFallback/>}><CustomerInbox key={principal.userId+':'+principal.workspaceId} principal={principal}/></Suspense>
             ) : view === 'users' || view === 'business' ? (
               (view==='users'?manageUsers(principal):viewTeamData(principal)) ? <Suspense fallback={<ChunkFallback/>}><UserManagement key={`${view}:${businessMember?.workspace_id}:${businessMember?.user_id}`} principal={principal} section={view} initialMember={view==='business'?businessMember:null} onViewData={member=>{setBusinessMember(member);setView('business')}}/></Suspense> : <Notice tone="error">当前角色没有此功能的访问权限。</Notice>
             ) : view === 'admin' ? (

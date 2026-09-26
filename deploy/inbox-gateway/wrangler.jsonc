@@ -1,0 +1,12 @@
+{
+  "name": "web-radar-inbox-gateway",
+  "main": "worker.ts",
+  "compatibility_date": "2026-09-11",
+  "workers_dev": false,
+  "observability": {"enabled": true},
+  "r2_buckets": [{"binding":"RAW","bucket_name":"web-radar-inbox-ingress"}],
+  "queues": {
+    "producers":[{"binding":"INGEST","queue":"web-radar-inbox-ingest"}],
+    "consumers":[{"queue":"web-radar-inbox-ingest","max_batch_size":5,"max_retries":20,"dead_letter_queue":"web-radar-inbox-ingest-dlq"}]
+  }
+}

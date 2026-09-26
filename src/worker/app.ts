@@ -1,3 +1,4 @@
+import inbox from './inbox/api';
 import { userManagement } from './user-management';
 import { outreachFetch, outreachQueue } from './outreach';
 import { withStoredEmailStatus } from './provider-settings';
@@ -86,6 +87,7 @@ app.all('/api/public/*', async (c) => {
   headers.delete('X-WR-Principal');
   return c.env.COORDINATOR.getByName('global').fetch(new Request(c.req.raw, { headers }));
 });
+app.route('/api/inbox',inbox);
 app.route('/api/management',userManagement);
 app.all('/api/outreach/*',c=>outreachFetch(c.req.raw,c.env,c.executionCtx));
 app.all('/api/*', async (c) => {

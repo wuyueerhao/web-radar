@@ -10,6 +10,7 @@ import { handleEmailQueue, type EmailSendMessage } from "../../src/outreach/serv
 test("recovery skips sent mail, reconciles provider records, quarantines unknown outcomes, sends untouched only once", async () => {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec(readFileSync("migrations/0007_outreach.sql", "utf8"));
+  sqlite.exec(readFileSync("migrations/0011_customer_inbox.sql","utf8"));
   for(const file of ['0008_resend_tracking.sql','0009_email_scheduling.sql']) sqlite.exec(readFileSync('migrations/'+file,'utf8'));
   sqlite.exec(`INSERT INTO edm_users(id,name,email,created_at,updated_at) VALUES ('u','test','u@example.com',0,0);
     INSERT INTO edm_providers(id,user_id,provider,name,api_key,is_default,created_at,updated_at) VALUES ('p','u','mailchimp','test','fake-key',1,0,0);

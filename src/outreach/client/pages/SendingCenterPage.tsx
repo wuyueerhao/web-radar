@@ -72,6 +72,7 @@ export function SendingCenterPage({ onNavigate }: { onNavigate?: (page: string) 
     senderName: "wuyueer",
     replyTo: "",
     sendRate: 50,
+    replyTracking: true,
   });
 
   const refreshSenderDomains = async (active:()=>boolean=()=>true) => {
@@ -364,7 +365,7 @@ export function SendingCenterPage({ onNavigate }: { onNavigate?: (page: string) 
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="sender-reply">回复地址</label>
-                <input id="sender-reply" className="form-input" type="email" value={form.replyTo} placeholder="reply@yourdomain.com" onChange={e=>setForm({...form,replyTo:e.target.value})} />
+                <label><input type="checkbox" checked={form.replyTracking} onChange={e=>setForm({...form,replyTracking:e.target.checked})}/>自动追踪客户回复</label><p className="form-help">收信配置启用后使用独立回复地址；未启用时使用下面的固定回复地址。</p><input id="sender-reply" className="form-input" type="email" value={form.replyTo} placeholder="reply@yourdomain.com" onChange={e=>setForm({...form,replyTo:e.target.value})} />
               </div>
             </div>
           </section>

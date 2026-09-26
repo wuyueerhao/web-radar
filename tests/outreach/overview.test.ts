@@ -46,6 +46,7 @@ const target = (id: string, jobId: string, status: string, code = '') =>
 beforeEach(() => {
   sqlite = new DatabaseSync(':memory:');
   sqlite.exec(readFileSync('migrations/0007_outreach.sql', 'utf8'));
+  sqlite.exec(readFileSync('migrations/0011_customer_inbox.sql','utf8'));
   for(const file of ['0008_resend_tracking.sql','0009_email_scheduling.sql']) sqlite.exec(readFileSync('migrations/'+file,'utf8'));
   for (const id of ['a', 'b'])
     insert('edm_users', { id, name: id, email: `${id}@example.com`, created_at: 1, updated_at: 1 });

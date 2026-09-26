@@ -1,3 +1,4 @@
+import { trackedAddress, plain } from '../../../worker/inbox/core';
 import { emailSendDelay, deferEmail, resendCooldown } from '../lib/email-pacing';
 import { resendRequest, ResendApiError } from '../lib/resend';
 import { createHash } from 'node:crypto';
@@ -865,6 +866,8 @@ export async function handleEmailQueue(
 
           const delay = await emailSendDelay(env.DB, message.recipientId, message.campaignId, campaignState.sendRate, provider.provider === 'resend');
           if (delay > 0) { await deferEmail(env, msg, delay); return; }
+          const inboxReply = await trackedAddress(env.DB, 'edm', message.recipientId, plain(replaceVariables(message.bodyHtml, message.variables)), replaceVariables(message.subject, message.variables));
+          if (inboxReply) message.replyTo = inboxReply;
           if (!await claimAttempt(env.DB, message.recipientId)) { msg.retry({ delaySeconds: 120 }); return; }
           dispatchStarted = true;
 
@@ -928,6 +931,7 @@ export async function handleEmailQueue(
 
           providerResult = result;
           await saveAttempt(env.DB, message.recipientId, result.messageId);
+          await env.DB.prepare("UPDATE wr_inbox_routes SET provider_message_id=? WHERE source='edm' AND target_id=?").bind(result.messageId,message.recipientId).run();
           // 更新发送状态
           await db
             .update(campaignRecipients)

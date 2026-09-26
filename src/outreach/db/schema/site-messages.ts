@@ -10,6 +10,7 @@ export const siteMessageJobs = sqliteTable(
     name: text("name").notNull(),
     senderName: text("sender_name").notNull(),
     senderEmail: text("sender_email").notNull(),
+    replyTracking: integer("reply_tracking", { mode: "boolean" }).notNull().default(false),
     senderPhone: text("sender_phone"),
     company: text("company"),
     address: text("address"),

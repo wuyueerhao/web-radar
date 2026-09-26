@@ -43,6 +43,7 @@ export const campaigns = sqliteTable(
     senderEmail: text("sender_email").notNull(),
     senderName: text("sender_name").notNull(),
     replyTo: text("reply_to"),
+    replyTracking: integer("reply_tracking", { mode: "boolean" }).notNull().default(false),
     // 活动状态
     status: text("status", {
       enum: ["draft", "scheduled", "sending", "paused", "completed", "failed", "needs_review"],

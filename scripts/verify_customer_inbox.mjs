@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {createHash,createHmac} from 'node:crypto';
+import {unstable_startWorker} from 'wrangler';
+import {chromium} from '@playwright/test';
+const origin='http://127.0.0.1:8797',out='artifacts/customer-inbox';await mkdir(out,{recursive:true});const state=out+'/state-'+Date.now();
+const cli=args=>promisify(execFile)(process.execPath,['node_modules/wrangler/bin/wrangler.js','d1',...args,'--local','--env','test','--persist-to',state],{timeout:45000});
+await cli(['migrations','apply','web-radar']);
+let worker,browser;
+try{
+ worker=await unstable_startWorker({config:'wrangler.jsonc',env:'test',dev:{server:{hostname:'127.0.0.1',port:8797},persist:state,inspector:false,watch:false,logLevel:'error'}});await worker.ready;
+ browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH});
+ const context=await browser.newContext({viewport:{width:1600,height:1050}});assert.equal((await context.request.post(origin+'/api/auth/test-login',{data:{identity:'admin'}})).status(),200);
+ const cr=await context.request.post(origin+'/api/inbox/configs',{data:{domain:'reply.example.com',forwardTo:'sales@work.example',trackEdm:true,trackSites:true,teamBody:false}});assert.equal(cr.status(),200);const config=await cr.json();
+ const timestamp=new Date().toISOString(),address=`e-${config.id.replaceAll('-','').slice(0,12)}-test@reply.example.com`;
+ await cli(['execute','web-radar','--command',`INSERT INTO wr_inbox_routes(id,config_id,workspace_id,owner_id,source,business_id,target_id,address,original_email,subject,snapshot,created_at) VALUES('route','${config.id}','test-workspace','test-admin','edm','sample-campaign','sample-recipient','${address}','buyer@client.example','Product enquiry','Original business enquiry','${timestamp}')`]);
+ const mail='From: Buyer <buyer@client.example>\r\nTo: '+address+'\r\nMessage-ID: <sample@client.example>\r\nSubject: Please send your quotation\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nPlease send a quotation for 200 units. Thank you.';
+ const time=String(Date.now()),hash=createHash('sha256').update(mail).digest('hex'),signature=createHmac('sha256',config.secret).update([config.id,time,address,'buyer@client.example','forwarded','sales@work.example',hash].join('\n')).digest('hex');
+ const received=await context.request.post(origin+'/api/inbox/receive/'+config.id,{headers:{'Content-Type':'message/rfc822','X-Inbox-Time':time,'X-Inbox-To':address,'X-Inbox-From':'buyer@client.example','X-Inbox-Forward':'forwarded','X-Inbox-Forward-To':'sales@work.example','X-Inbox-Signature':signature},data:mail});assert.equal(received.status(),200);
+ const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(origin+'/?view=inbox');await page.getByRole('heading',{name:'客户收件箱',exact:true}).waitFor();await page.locator('.inbox-thread').click();await page.getByText('Please send a quotation for 200 units. Thank you.',{exact:true}).waitFor();
+ await page.getByLabel('邮件分类').selectOption('human');await page.waitForResponse(r=>r.url().includes('/api/inbox/threads/')&&r.request().method()==='GET');
+ await page.locator('.inbox-controls').getByLabel('处理状态').selectOption('following');await page.waitForResponse(r=>r.url().includes('/api/inbox/threads/')&&r.request().method()==='GET');
+ await page.screenshot({path:out+'/desktop.png',fullPage:true,animations:'disabled'});
+ await page.getByRole('button',{name:'收信配置',exact:true}).click();await page.getByText('reply.example.com',{exact:true}).waitFor();assert.equal(await page.locator('.modal input[type=email]').count(),1);await page.getByLabel('关闭',{exact:true}).click();
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:out+'/mobile.png',fullPage:true,animations:'disabled'});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1),false);assert.deepEqual(errors,[]);
+ const member=await browser.newContext();await member.request.post(origin+'/api/auth/test-login',{data:{identity:'member'}});const memberList=await (await member.request.get(origin+'/api/inbox/threads')).json();assert.equal(memberList.total,0);
+ console.log('PASS: signed MIME reception, linked conversation, plain text detail, classification, follow-up status, receiving setup, user isolation, responsive UI. No real email sent.');
+}finally{await browser?.close();await worker?.dispose();}

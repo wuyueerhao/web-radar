@@ -6,7 +6,7 @@ import {d1} from './sqlite';
 import {siteMessageRoutes} from '../../src/outreach/server/routes/site-message.routes';
 
 test('site jobs pause, reject duplicate starts and preserve uncertain submissions',async()=>{
- const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync('migrations/0007_outreach.sql','utf8'));
+ const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync('migrations/0007_outreach.sql','utf8'));sqlite.exec(readFileSync('migrations/0011_customer_inbox.sql','utf8'));
  sqlite.exec("ALTER TABLE edm_campaigns ADD COLUMN created_by TEXT; ALTER TABLE edm_site_message_jobs ADD COLUMN created_by TEXT;");
  sqlite.exec("INSERT INTO edm_users(id,name,email,created_at,updated_at) VALUES ('workspace','Test','test@example.com',0,0)");
  const queue:any[]=[];

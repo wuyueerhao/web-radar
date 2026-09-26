@@ -324,10 +324,12 @@ campaignRoutes.post("/", requirePermission("campaigns:write"), async (c) => {
     senderEmail: string;
     senderName: string;
     replyTo?: string;
+    replyTracking?: boolean;
     sendRate?: number;
     scheduledAt?: string;
   }>();
 
+  if (body.replyTracking !== undefined && typeof body.replyTracking !== "boolean") return c.json({error:"回复追踪选项无效"},400);
   if (body.sendRate !== undefined && !validSendRate(body.sendRate)) return c.json({error:'发送速率须为 1–200 封/分钟的整数'},400);
   if (!body.name?.trim() || !body.senderEmail?.trim() || !body.senderName?.trim()) {
     return c.json(
@@ -355,6 +357,7 @@ campaignRoutes.post("/", requirePermission("campaigns:write"), async (c) => {
     senderEmail: body.senderEmail.trim(),
     senderName: body.senderName.trim(),
     replyTo: body.replyTo?.trim() || null,
+    replyTracking: body.replyTracking === true,
     sendRate: body.sendRate || 50,
     scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : null,
   });
@@ -386,11 +389,12 @@ campaignRoutes.put("/:id", requirePermission("campaigns:write"), async (c) => {
     );
   }
 
+  if (body.replyTracking !== undefined && typeof body.replyTracking !== "boolean") return c.json({error:"回复追踪选项无效"},400);
   if (body.sendRate !== undefined && !validSendRate(body.sendRate)) return c.json({error:'发送速率须为 1–200 封/分钟的整数'},400);
   const updateData: Record<string, any> = { updatedAt: new Date() };
   const allowedFields = [
     "name", "templateId", "senderEmail", "senderName",
-    "replyTo", "sendRate",
+    "replyTo", "sendRate", "replyTracking",
   ];
 
   for (const field of allowedFields) {

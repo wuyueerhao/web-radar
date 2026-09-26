@@ -128,6 +128,7 @@ export async function applyResendEvent(db: D1Database, providerId: string, event
     .bind(providerId, emailId, typeof tag === 'string' ? tag : '')
     .first<any>();
   if (!row) return false;
+  if (typeof event.data.message_id === 'string') await db.prepare("UPDATE wr_inbox_routes SET rfc_message_id=? WHERE source='edm' AND target_id=?").bind(event.data.message_id.slice(0,1000),row.recipient_id).run();
   const kind = event.type.slice(6),
     now = Math.floor(Date.now() / 1000);
   const delivered = ['delivered', 'opened', 'clicked'].includes(kind),

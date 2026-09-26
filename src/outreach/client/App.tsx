@@ -34,6 +34,7 @@ export default function Outreach({principal,section}:{principal:Principal;sectio
         {!writable&&<p className="notice">当前角色为只读，可查看数据，不能修改或发送。</p>}
         {section==='edm'&&<header className="outreach-heading"><h1>EDM 邮件</h1><p>管理联系人、邮件内容与营销活动，查看发送进度和效果。</p></header>}
         {section==='edm'&&<nav className="outreach-tabs" aria-label="EDM 邮件功能">{pages.filter(p=>(admin||!['providers','domains'].includes(p[0]))&&(writable||p[0]!=='send')).map(([id,label])=><button key={id} aria-current={page===id?'page':undefined} onClick={()=>navigate(id)}>{label}</button>)}</nav>}
+        <p className="muted">客户来信在 <a href={'/?view=inbox&inboxSource='+ (section==='edm'?'edm':'site')}>客户收件箱</a> 查看。收信配置启用后，新邮件／任务可自动追踪回复；历史数据不自动补齐。</p>
         {section==='site-messages'?<SiteMessagesPage/>:<>
           {page==='overview'&&<EmailOverviewPanel onOpen={()=>navigate('campaigns')}/>}
           {page==='send'&&<SendingCenterPage onNavigate={navigate}/>}

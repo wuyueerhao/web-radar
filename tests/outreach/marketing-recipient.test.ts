@@ -12,6 +12,7 @@ import { handleEmailQueue, type EmailSendMessage } from '../../src/outreach/serv
 test.each(['complete', 'split', 'existing remote', 'paused', 'concurrent duplicate'])('Marketing delivery preserves recipient safety: %s', async (mode) => {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec(readFileSync('migrations/0007_outreach.sql', 'utf8'));
+  sqlite.exec(readFileSync('migrations/0011_customer_inbox.sql','utf8'));
   sqlite.exec(`
     INSERT INTO edm_users(id,name,email,created_at,updated_at) VALUES ('workspace','Test','test@example.com',0,0);
     INSERT INTO edm_providers(id,user_id,provider,name,api_key,is_default,created_at,updated_at) VALUES ('provider','workspace','mailchimp','test','placeholder',1,0,0);
