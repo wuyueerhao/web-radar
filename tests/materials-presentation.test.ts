@@ -41,7 +41,7 @@ const options = (page = 'home', productId = 'p0', lang: Language = 'en') => ({
 const grouped = (draft: Draft) => Object.assign(draft, { productDisplayGroups: [['p0', 'p1']] });
 
 describe('confirmed materials presentation', () => {
-  it.each(Object.keys(templateMediaRequirements))(
+  it.each(Object.keys(templateMediaRequirements).filter(id => !id.startsWith('single-')))(
     '%s presents uncropped collections, a native mobile menu and visible first content',
     async (template) => {
       const draft = await fixture(template, 2),
@@ -148,7 +148,7 @@ describe('confirmed materials presentation', () => {
       'data-wr-flow-header',
     );
   });
-  it.each(Object.keys(templateMediaRequirements))(
+  it.each(Object.keys(templateMediaRequirements).filter(id => !id.startsWith('single-')))(
     '%s groups only confirmed IDs and preserves stored products and original galleries',
     async (template) => {
       const draft = grouped(await fixture(template));
@@ -290,7 +290,7 @@ describe('confirmed materials presentation', () => {
       ).searchParams.get('productId'),
     ).toBe('p0');
   });
-  it.each(Object.keys(templateMediaRequirements))(
+  it.each(Object.keys(templateMediaRequirements).filter(id => !id.startsWith('single-')))(
     '%s routes inquiry and language links correctly at every depth',
     async (template) => {
       const draft = await fixture(template, 2);
@@ -404,7 +404,7 @@ describe('explicit display group draft metadata', () => {
   });
 });
 
-it.each(Object.keys(templateMediaRequirements))('%s restores confirmed About copy in old drafts without changing their contract', async template => {
+it.each(Object.keys(templateMediaRequirements).filter(id => !id.startsWith('single-')))('%s restores confirmed About copy in old drafts without changing their contract', async template => {
   const revision = `2026-09-19.${template}-materials.1`;
   const draft = await fixture(template, 2, revision);
   Object.assign(draft.company, {description: '', targetMarkets: '', customerTypes: '', cooperationProcess: ''});

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "revision": "2026-09-20.1",
+  "revision": "2026-09-26.1",
   "templateId": "single-artisan-craft",
   "name": "典藏机械腕表与工匠传世杰作",
   "documentLanguage": "zh-CN",
@@ -12,8 +12,8 @@
       "#2A221B",
       "#EBDBC8"
     ],
-    "artDirection": "高定奢华手作工坊，暖调亚麻象牙白与古法大马士革钢纹理，瑞士钟表双联杂志折页，手工五道传世工序时光轴。",
-    "composition": "温润象牙暖调白底色，首屏为典藏陀飞轮机械腕表微距特写与托斯卡纳手工植鞣皮表带，居中为非对称杂志排版与材料血统鉴证书。",
+    "artDirection": "整幅腕表摄影纯图 Banner；图片下方排标题与按钮，暖调纸感与衬线字体",
+    "composition": "整幅腕表摄影纯图 Banner；图片下方排标题与按钮，暖调纸感与衬线字体。整站只展示一个选定主商品；不得制作多商品目录。",
     "tone": "专业、沉稳、国际商贸旗舰感、面向全球大宗 B2B 采购。",
     "avoid": [
       "不得将整张网页截图当作可编辑网站背景。",
@@ -51,22 +51,17 @@
   },
   "pagePlan": {
     "home": [
-      "首页首屏",
-      "三项采购价值",
-      "八款产品橱窗",
-      "公司介绍与询盘",
-      "订阅与页脚"
+      "整幅腕表摄影纯图 Banner；图片下方排标题与按钮，暖调纸感与衬线字体",
+      "主商品介绍与已确认参数",
+      "同一商品细节图集（有素材时显示）",
+      "询盘入口与页脚"
     ],
     "catalog": [
-      "分类/筛选（以模板能力为准）",
-      "产品图片、名称、简介与详情链接"
+      "单一主商品介绍、真实图片、参数及询盘；不展示目录、筛选或其它商品"
     ],
     "about": [
-      "新版模板 About 布局，主图 about-primary-image；说明性配图不能宣称真实厂房或产能。",
-      "辅图 about-secondary-image，使用不同构图。",
-      "about-headline 公司标题、about-story 公司故事、about-highlights 采购亮点；均按语言绑定确认事实。",
-      "亮点为 1–4 行，每行 value | label | description；没有已确认数字时 value 使用 ✓。",
-      "其他可见文案与 SVG 文字按当前合同中的 textSlots 替换，不保留模板认证和业绩示例。"
+      "品牌名称和真实故事",
+      "主商品图片、已确认业务能力及联系入口"
     ],
     "contact": [
       "真实联系方式",
@@ -79,124 +74,26 @@
     ]
   },
   "inventory": {
-    "recommendedDistinctProductImages": 8,
+    "recommendedDistinctProductImages": 1,
     "minimumProductImages": 1,
     "bundledVideoCount": 0,
     "defaultHero": "image-or-css",
-    "reuseRule": "confirmed-materials：优先复用产品原图、场景、包装、细节及符合要求的海报，缺图才生成；同一区域只放同类图，图/名称/链接保持同产品，数量不足缩减或隐藏，不补示例产品。Standalone：原产品卡仍按产品顺序展示，独立模板的示例与交互逻辑不由本规范改写。",
+    "reuseRule": "主商品由 primaryProductId 选择，未指定时使用首个商品。首页、详情、图集和询盘使用同一个商品；其他已录入商品保留但不在此模板展示。可为同一商品准备 2–4 张细节或场景图。",
     "decorativeAssets": "CSS、图标、字体、背景与装饰已随模板内置，保留风格时无需重新生成。"
   },
   "layoutImageSlots": [
     {
       "id": "image-0",
-      "purpose": "产品橱窗 1",
+      "purpose": "唯一主商品照片；所有复用位置均属于同一商品",
       "dimensions": {
         "width": 1200,
         "height": 1200
       },
-      "defaultAsset": "/templates/senseng/products-1.jpg",
+      "defaultAsset": "/templates/single-product/artisan.jpg",
       "binding": {
         "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
-      }
-    },
-    {
-      "id": "image-1",
-      "purpose": "产品橱窗 2",
-      "dimensions": {
-        "width": 1200,
-        "height": 1200
-      },
-      "defaultAsset": "/templates/senseng/products-2.jpg",
-      "binding": {
-        "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
-      }
-    },
-    {
-      "id": "image-2",
-      "purpose": "产品橱窗 3",
-      "dimensions": {
-        "width": 1200,
-        "height": 1200
-      },
-      "defaultAsset": "/templates/senseng/products-3.jpg",
-      "binding": {
-        "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
-      }
-    },
-    {
-      "id": "image-3",
-      "purpose": "产品橱窗 4",
-      "dimensions": {
-        "width": 1200,
-        "height": 1200
-      },
-      "defaultAsset": "/templates/senseng/products-4.jpg",
-      "binding": {
-        "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
-      }
-    },
-    {
-      "id": "image-4",
-      "purpose": "产品橱窗 5",
-      "dimensions": {
-        "width": 1200,
-        "height": 1200
-      },
-      "defaultAsset": "/templates/senseng/products-5.jpg",
-      "binding": {
-        "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
-      }
-    },
-    {
-      "id": "image-5",
-      "purpose": "产品橱窗 6",
-      "dimensions": {
-        "width": 1200,
-        "height": 1200
-      },
-      "defaultAsset": "/templates/senseng/products-6.jpg",
-      "binding": {
-        "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
-      }
-    },
-    {
-      "id": "image-6",
-      "purpose": "产品橱窗 7",
-      "dimensions": {
-        "width": 1200,
-        "height": 1200
-      },
-      "defaultAsset": "/templates/senseng/products-7.jpg",
-      "binding": {
-        "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
-      }
-    },
-    {
-      "id": "image-7",
-      "purpose": "产品橱窗 8",
-      "dimensions": {
-        "width": 1200,
-        "height": 1200
-      },
-      "defaultAsset": "/templates/senseng/products-8.jpg",
-      "binding": {
-        "strategy": "product-reuse",
-        "path": "draft.products[].imageAssetId",
-        "note": "Standalone：原模板产品图复用位置说明，不保证每位置有独立编辑字段。confirmed-materials：以 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 稳定槽位 ID、用途、数量、比例、产品范围与来源策略为准，不按本列表的顺序位置推断绑定。"
+        "path": "draft.products[primaryProductId].imageAssetId",
+        "note": "展示样例照片仅在未填商品时使用；真实商品缺图时不补用无关示例。"
       }
     }
   ],
@@ -204,11 +101,11 @@
     {
       "id": "product-master",
       "kind": "image",
-      "purpose": "每款产品的原始主图；优先复用已提供素材，缺图才生成",
+      "purpose": "唯一主商品原始主图；必须保持商品身份一致",
       "quantity": {
         "min": 1,
-        "recommended": 8,
-        "max": 20
+        "recommended": 1,
+        "max": 1
       },
       "dimensions": {
         "width": 1536,
@@ -246,7 +143,7 @@
       },
       "dimensions": {
         "width": 2560,
-        "height": 960
+        "height": 1440
       },
       "formats": [
         "image/png",
@@ -255,8 +152,8 @@
       ],
       "recommendedMaxBytes": 2097152,
       "required": false,
-      "composition": "画面左侧 42% 保持明亮空白；产品集中右侧 58%，不要将成品方形产品照片硬贴在蓝色背景上。",
-      "promptTemplate": "生成 Senseng 经典工贸 的首页背景，风格：浅蓝天空与白云背景，左侧深蓝标题，右侧产品与包装前后错落堆叠，底部统一落地阴影。 构图：画面左侧 42% 保持明亮空白；产品集中右侧 58%，不要将成品方形产品照片硬贴在蓝色背景上。 主题来自 {{brand.description}} 和 {{products}}。文字由 HTML 叠加，图片不含文字。 confirmed-materials 公共页的每张 Banner 必须包含全部所选产品，多张 Banner 构图不同；不要重复图凑数。",
+      "composition": "整幅腕表摄影纯图 Banner；图片下方排标题与按钮，暖调纸感与衬线字体；使用唯一主商品，不拼接商品集合，无烘焙文字。",
+      "promptTemplate": "根据 {{products[0].referenceImages}} 为唯一主商品制作首屏配图。整幅腕表摄影纯图 Banner；图片下方排标题与按钮，暖调纸感与衬线字体。保留真实形状、颜色、标志与比例，不增加其它商品。",
       "negativePrompt": "不要水印、乱码、虚构商标、假认证；不得改变产品结构、数量、材质或包装标识。不要把导航、按钮、价格、统计数字烧录进背景。",
       "binding": {
         "strategy": "page-banner",
@@ -272,7 +169,7 @@
     {
       "id": "hero-video",
       "kind": "video",
-      "purpose": "首页全屏背景；可选切换，将改变模板默认静态首屏表现",
+      "purpose": "可选自定义背景视频；硬件模板默认内置电路微距，其他两款默认无视频",
       "quantity": {
         "min": 0,
         "recommended": 1,
@@ -288,7 +185,7 @@
       ],
       "recommendedMaxBytes": 20971520,
       "required": false,
-      "composition": "画面左侧 42% 保持明亮空白；产品集中右侧 58%，不要将成品方形产品照片硬贴在蓝色背景上。",
+      "composition": "缓慢稳定的同一硬件特写或材质氛围，首尾自然过渡，无字幕或音轨。",
       "promptTemplate": "为 Senseng 经典工贸 生成无声可循环背景视频。浅蓝天空与白云背景，左侧深蓝标题，右侧产品与包装前后错落堆叠，底部统一落地阴影。 画面左侧 42% 保持明亮空白；产品集中右侧 58%，不要将成品方形产品照片硬贴在蓝色背景上。 使用 {{products}} 的真实产品作为参考；缓慢镜头推移或轻微景深变化，一镜到底，首尾自然衔接。不得改变产品形态。",
       "negativePrompt": "不要水印、乱码、虚构商标、假认证；不得改变产品结构、数量、材质或包装标识。不要把导航、按钮、价格、统计数字烧录进背景。",
       "binding": {
@@ -620,6 +517,7 @@
     }
   ],
   "generationWorkflow": [
+    "确认唯一主商品；所有图片、文字和链接围绕 primaryProductId。不得生成多商品橱窗、型号对比、虚构规格、证书或临床试验。",
     "区分入口：Standalone 独立建站保留现有字段与流程；Product Radar confirmed-materials 必须读取 /api/internal/template-guides/materials/senseng-clean 的 typed-regions-v1 版本化合同，并固定 guideRevision 与 contractRevision。",
     "核对品牌、产品、目标市场、客户类型、合作流程及真实素材；先复用已有主图、场景、包装、细节和符合要求的海报，缺图才生成。",
     "按合同的区域图类型、数量、明确像素尺寸、产品范围及来源策略形成计划，展示需新生成与复用数量和用途；客户确认开始后才执行生成。",

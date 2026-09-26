@@ -511,10 +511,14 @@ export function polishTypedMaterials(
   contract: MaterialsTemplateContract,
   preserveAboutLayout = false,
 ) {
-  collectionHero(root, draft, options, contract);
-  fullCollections(root, draft, options, contract);
-  productLists(root, draft, options, contract);
-  if (!preserveAboutLayout) factualPanels(root, draft, options, contract);
+  // Single-product layouts already bind their one product and intentionally have
+  // three different hero compositions. Do not replace them with a collection.
+  if (!draft.template.startsWith('single-')) {
+    collectionHero(root, draft, options, contract);
+    fullCollections(root, draft, options, contract);
+    productLists(root, draft, options, contract);
+    if (!preserveAboutLayout) factualPanels(root, draft, options, contract);
+  }
   navigation(root, draft, options);
   // Candy leaves this pill behind when the unsupported demo badge text is omitted.
   if (draft.template === 'senseng-candy' && options.page === 'detail') {

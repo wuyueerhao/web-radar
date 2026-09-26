@@ -1,3 +1,4 @@
+import { isSingleProductTemplate, singleProductRuntime } from '../templates/themes/singleProduct';
 import { parse, serialize, type DefaultTreeAdapterMap } from 'parse5';
 import { referenceInteractions } from '../templates/themes/referenceInteractions';
 import { materialsRuntime } from '../shared/materials-runtime';
@@ -14,7 +15,7 @@ export function projectPreviewHtml(html: string, base: string, origin: string, s
       const get = (name: string) => node.attrs.find(a => a.name === name)?.value;
       const set = (name: string, value: string) => { const a = node.attrs.find(a => a.name === name); if (a) a.value = value; else node.attrs.push({ name, value }); };
       // Static theme resources belong to WR; all project media already uses the PR proxy.
-      for (const a of node.attrs) if (['src', 'srcset', 'poster', 'style', 'href'].includes(a.name))
+      for (const a of node.attrs) if (['src', 'srcset', 'poster', 'data-src', 'style', 'href'].includes(a.name))
         a.value = a.value.replace(/(^|[\s("',])\/templates\//g, '$1' + origin + '/templates/');
       if (node.tagName === 'a' && (get('data-wr-page') || get('data-wr-lang'))) {
         const page = get('data-wr-page') || selection.page;
@@ -45,5 +46,6 @@ export const projectPreviewRuntime = `(()=>{
 })();`;
 
 export function projectPreviewRuntimeForDraft(draft: Draft): string {
-  return releasedMaterialsPreviewRuntime(draft) ?? projectPreviewRuntime;
+  const runtime = releasedMaterialsPreviewRuntime(draft) ?? projectPreviewRuntime;
+  return isSingleProductTemplate(draft.template) ? runtime + '\n' + singleProductRuntime : runtime;
 }

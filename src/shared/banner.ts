@@ -87,6 +87,10 @@ export function withBanner(
           `${attr(node, 'id')} ${attr(node, 'class')}`,
         ),
     );
+  // Pure-image single-product heroes keep editable text in the following panel.
+  if (hero && !hasMedia && hasCustomCopy && attr(hero, 'data-sp-hero') === 'image') {
+    hero = all.find(node => node.attrs.some(a => a.name === 'data-sp-hero-copy')) ?? hero;
+  }
   if (!hero && page === 'home') {
     const h1 = all.find((node) => node.tagName === 'h1');
     let parent = h1?.parentNode;

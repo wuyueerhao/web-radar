@@ -206,6 +206,7 @@ describe('Product Radar private project service', () => {
   it.each(Object.keys(templateMediaRequirements))('preserves media and navigation hooks for current %s materials', async template => {
     const p = await accepted(), input = await typedMaterialsFixture(template, 2);
     p.draft = draftFromMaterials(input, Object.fromEntries(input.materials.media.map(m => [m.id, { id: 'stored-' + m.id } as any])));
+    if (template.startsWith('single-')) p.draft.primaryProductId='p1';
     await store.update('projects', p).run();
     for (const page of ['home', 'catalog', 'detail', 'about', 'contact']) {
       const response = await call(p.id, 'preview', { page, productId: 'p1' }); expect(response.status).toBe(200);

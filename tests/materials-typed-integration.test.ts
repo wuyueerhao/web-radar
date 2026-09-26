@@ -29,6 +29,7 @@ describe('all-template confirmed materials handoff',()=>{
       expect(draft.products).toHaveLength(count);
       expect(draft.company).toMatchObject({targetMarkets:'United States',customerTypes:'Retail buyers',cooperationProcess:'Confirm specifications and request a sample'});
       expect(draft.products.map(p=>p.gallery?.length)).toEqual(Array(count).fill(2));
+      if(id.startsWith('single-'))draft.primaryProductId=`p${count-1}`;
       const edited=editDraft(draft,structuredClone(draft));
       expect(edited.materials?.imageBindings).toHaveLength(m.imageBindings.length);
       for(const page of materialsPages){

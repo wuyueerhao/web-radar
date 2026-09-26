@@ -462,55 +462,40 @@ describe('3 single-product showcase templates', () => {
     });
   }
 
-  it('renders unique signatures, layouts, and storytelling features for each single-product template', () => {
+  it('gives each single-product homepage a different hero format', () => {
     const d = draft();
-
-    // 1. single-device-showcase: Cyber Keynote dark futuristic telemetry HUD & architecture breakdown
-    const deviceHome = renderSite({ ...d, template: 'single-device-showcase' }, opts);
-    expect(deviceHome).toContain('0.12ms');
-    expect(deviceHome).toContain('Flagship Single-Product Keynote');
-    expect(deviceHome).toContain('SYSTEM // ONLINE');
-    expect(deviceHome).toContain('EXPLODED ANATOMY');
-
-    const deviceDetail = renderSite(
-      { ...d, template: 'single-device-showcase' },
-      { ...opts, page: 'detail', productId: 'p-one' },
-    );
-    expect(deviceDetail).toContain('wr-detail-main-img');
-    expect(deviceDetail).toContain('VERIFIED TECHNICAL METRICS');
-    expect(deviceDetail).toContain('IP68 Submersible');
-
-    // 2. single-artisan-craft: Warm ivory gold luxury atelier & 5-stage craftsmanship timeline
-    const artisanHome = renderSite({ ...d, template: 'single-artisan-craft' }, opts);
-    expect(artisanHome).toContain('THE ATELIER PROTOCOL');
-    expect(artisanHome).toContain('The 5 Stages of Timeless Execution');
-    expect(artisanHome).toContain('Certificate of Material Provenance');
-
-    const artisanDetail = renderSite(
-      { ...d, template: 'single-artisan-craft' },
-      { ...opts, page: 'detail', productId: 'p-one' },
-    );
-    expect(artisanDetail).toContain('wr-detail-main-img');
-    expect(artisanDetail).toContain('HAND-NUMBERED PIÈCE UNIQUE');
-    expect(artisanDetail).toContain('Geneva Atelier');
-
-    // 3. single-wellness-nordic: Sage & oat organic biophilic wellness & 24h circadian rhythm guide
-    const wellnessHome = renderSite({ ...d, template: 'single-wellness-nordic' }, opts);
-    expect(wellnessHome).toContain('One Device. Synchronized to Your Sun.');
-    expect(wellnessHome).toContain('The 24h Rhythm');
-    expect(wellnessHome).toContain('Scientifically Tested in Double-Blind Trials');
-
-    const wellnessDetail = renderSite(
-      { ...d, template: 'single-wellness-nordic' },
-      { ...opts, page: 'detail', productId: 'p-one' },
-    );
-    expect(wellnessDetail).toContain('wr-detail-main-img');
-    expect(wellnessDetail).toContain('CERTIFIED BIOPHILIC LIVING');
-    expect(wellnessDetail).toContain('100% BPA-Free');
-
-    // Verify all 3 single-product templates have completely distinct homepages
-    const homes = [deviceHome, artisanHome, wellnessHome];
-    const uniqueHomes = new Set(homes);
-    expect(uniqueHomes.size).toBe(3);
+    for (const [template, kind] of [['single-device-showcase','video'],['single-artisan-craft','image'],['single-wellness-nordic','image-text']] as const) {
+      const html = renderSite({...d, template}, opts);
+      expect(html).toContain(`data-sp-hero="${kind}"`);
+      expect(html).not.toMatch(/0\.12ms|IP68|Double-Blind|Geneva Atelier|500 Numbered/);
+      expect(html).toContain('Oak form');
+      if(kind === 'image') {
+        const hero = html.match(/<section[^>]*data-sp-hero="image"[\s\S]*?<\/section>/)![0];
+        expect(hero).toContain('<img');
+        expect(hero).not.toMatch(/<h1|<p|<a|<button/);
+      }
+    }
+  });
+  it.each(singleTemplates)('keeps the selected product across all pages and exports for %s', template => {
+    const d = draft();d.template=template;
+    d.products.push({...d.products[0],id:'selected',name:'Selected lamp',imageAssetId:'lamp'});
+    d.primaryProductId='selected';
+    for(const page of ['home','catalog','detail','about','contact']){
+      const html=renderSite(d,{...opts,page,productId:'p-one'});
+      expect(html).not.toContain('Oak form');
+      expect(html).not.toContain('value="p-one"');
+      expect(html).not.toContain('products/p-one');
+      if(page==='detail') expect(html).toContain('Selected lamp');
+    }
+    const files=renderSiteFiles(d,{...opts,preview:false,publicBaseUrl:'https://example.com'});
+    expect(files['en/products/selected/index.html']).toContain('Selected lamp');
+    expect(files['en/products/p-one/index.html']).toBeUndefined();
+    expect(d.products).toHaveLength(2);
+  });
+  it.each(singleTemplates)('does not substitute stock product photos for a missing customer image: %s', template => {
+    const d=draft();d.template=template;d.products[0].imageAssetId=undefined;
+    const html=renderSite(d,{...opts,page:'detail'});
+    expect(html).not.toMatch(/single-product\/(artisan|nordic|hardware)\.jpg/);
+    expect(html).toContain('sp-no-photo');
   });
 });

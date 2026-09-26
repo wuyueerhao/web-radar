@@ -19,7 +19,7 @@ const attr = (n: Element, name: string) => n.attrs.find((a) => a.name === name)?
 const text = (n: Node): string =>
   'value' in n ? n.value : 'childNodes' in n ? n.childNodes.map(text).join(' ') : '';
 const hero = (root: Node) =>
-  nodes(root).find((n) => attr(n, 'data-wr-collection-hero') !== undefined)!;
+  nodes(root).find((n) => attr(n, 'data-wr-banner') === 'custom' || attr(n, 'data-wr-collection-hero') !== undefined)!;
 const images = (root: Node) =>
   nodes(root)
     .filter((n) => n.tagName === 'img')

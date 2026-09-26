@@ -40,7 +40,8 @@ import { renderPetSuppliesPage } from './themes/petSupplies';
 import { renderStationeryPage } from './themes/stationeryOffice';
 import { renderPosterPage } from './themes/posterPrints';
 import { renderFoodPage } from './themes/foodPackaging';
-import { renderSingleProductPage } from './themes/singleProduct';
+import { renderSingleProductPage, singleProductDraft, isSingleProductTemplate, singleProductRuntime } from './themes/singleProduct';
+import { singleProductStyles } from './themes/singleProductStyles';
 import { materialProductImage,materialsSensengBody,materialsSeo,materialsThemeStyle } from './materials-render';
 import { materialsRuntime } from '../shared/materials-runtime';
 import { withProductImageViewer } from '../shared/product-image-viewer';
@@ -86,6 +87,8 @@ function segment(id: string): string {
 }
 const productPath = (id?: string) => `products/${segment(id || '')}/index.html`;
 export function renderSite(draft: Draft, options: RenderOptions): string {
+  if (!isTypedMaterialsSource(draft)) draft = singleProductDraft(draft);
+  if (isSingleProductTemplate(draft.template) && draft.products.length) options = { ...options, productId: (draft.products.find(p => p.id === draft.primaryProductId) ?? draft.products[0]).id };
   const released = renderReleasedMaterials(draft, options);
   if (released !== undefined) return released;
   const html = renderSiteContent(draft, options);
@@ -467,7 +470,7 @@ function renderSiteHtml(draft: Draft, options: RenderOptions): string {
   if (template === 'single-device-showcase' || template === 'single-artisan-craft' || template === 'single-wellness-nordic') {
     const ctx = buildThemeContext(draft, options);
     const bodyHtml = renderSingleProductPage(ctx, template);
-    return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(page === 'home' ? company.name : `${page === 'detail' ? translate(draft.products.find((p) => p.id === options.productId) ?? mainProduct ?? ({ name: ui.product, description: '' } as Product)).name : ui[page as 'home' | 'catalog' | 'about' | 'contact']} · ${company.name}`)}</title><meta name="description" content="${esc(copy.subtitle)}">${options.preview ? '<meta name="robots" content="noindex,nofollow">' : ''}<style>${styles}\n${themeStyles}</style></head><body class="${template}" data-template="${template}" style="--brand:${color};--brand-ink:${brandInk}">${options.preview ? `<div class="preview-bar">${esc(ui.preview)}</div>` : ''}${bodyHtml}<script>${script}</script></body></html>`;
+    return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(page === 'home' ? company.name : `${page === 'detail' ? translate(draft.products.find((p) => p.id === options.productId) ?? mainProduct ?? ({ name: ui.product, description: '' } as Product)).name : ui[page as 'home' | 'catalog' | 'about' | 'contact']} · ${company.name}`)}</title><meta name="description" content="${esc(copy.subtitle)}">${options.preview ? '<meta name="robots" content="noindex,nofollow">' : ''}<style>${styles}\n${themeStyles}\n${singleProductStyles}</style></head><body class="${template}" data-template="${template}" style="--brand:${color};--brand-ink:${brandInk}">${options.preview ? `<div class="preview-bar">${esc(ui.preview)}</div>` : ''}${bodyHtml}<script>${script}</script><script>${singleProductRuntime}</script></body></html>`;
   }
   if (isReferenceTemplate(template)) return renderReferencePage(draft, { ...options, page }, content, script);
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(page === 'home' ? company.name : `${page === 'detail' ? translate(draft.products.find((p) => p.id === options.productId) ?? mainProduct ?? ({ name: ui.product, description: '' } as Product)).name : ui[page as 'home' | 'catalog' | 'about' | 'contact']} · ${company.name}`)}</title><meta name="description" content="${esc(copy.subtitle)}">${options.preview ? '<meta name="robots" content="noindex,nofollow">' : ''}<style>${styles}\n${themeStyles}</style></head><body class="${template}" data-template="${template}" style="--brand:${color};--brand-ink:${brandInk}">${options.preview ? `<div class="preview-bar">${esc(ui.preview)}</div>` : ''}<a class="skip" href="#main">${esc(ui.skip)}</a><header class="wrap nav"><a class="brand" href="${path('index.html')}" ${navAttrs('home')}>${brand}</a><nav aria-label="${esc(ui.menu)}">${navLink('home', ui.home)}${navLink('catalog', ui.catalog)}${navLink('about', ui.about)}${navLink('contact', ui.contact)}</nav><div class="languages" aria-label="${esc(ui.language)}">${languageLinks}</div></header><main id="main">${content}</main><footer class="footer wrap"><div class="footer-top"><a class="brand" href="${path('index.html')}" ${navAttrs('home')}>${esc(company.name)}</a><div class="socials">${socials}</div><a class="text-link" href="mailto:${esc(company.email)}">${esc(company.email)}</a></div><div class="footer-bottom"><span>© ${new Date().getUTCFullYear()} ${esc(company.name)}</span><span>${esc(ui.rights)}</span></div></footer><script>${script}</script></body></html>`;
@@ -477,6 +480,7 @@ export function renderSiteFiles(
   options: Omit<RenderOptions, 'lang' | 'page'> & { publicBaseUrl: string },
 ): Record<string, string> {
   if (options.preview) throw Error('Private preview cannot be exported');
+  draft = singleProductDraft(draft);
   const files: Record<string, string> = {};
   for (const lang of draft.languages) {
     for (const page of ['home', 'catalog', 'about', 'contact'])
@@ -495,5 +499,10 @@ export function renderSiteFiles(
   files['index.html'] =
     `<!doctype html><html lang="en"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=en/index.html"><title>${esc(draft.company.name)}</title><a href="en/index.html">${esc(draft.company.name)}</a></html>`;
   files['index.html'] = withFavicon(files['index.html'], draft, options.assetUrl);
+  // Exported sites run on their own domain; bundled template media lives on the builder.
+  if (isSingleProductTemplate(draft.template)) {
+    const mediaOrigin = new URL(options.publicBaseUrl).origin;
+    for (const key of Object.keys(files)) files[key] = files[key].replace(/(["'(])\/templates\/single-product\//g, `$1${mediaOrigin}/templates/single-product/`);
+  }
   return files;
 }

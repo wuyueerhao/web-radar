@@ -145,6 +145,7 @@ it.each(Object.keys(templateMediaRequirements))('%s can enlarge the selected pro
   for (const revision of [undefined, `2026-09-19.${template}-materials.1`]) {
     const input = await typedMaterialsFixture(template, 2, revision);
     const draft = draftFromMaterials(input, Object.fromEntries(input.materials.media.map(m => [m.id, { id: m.id } as Asset])));
+    if (template.startsWith('single-')) draft.primaryProductId = 'p1';
     const options = { projectId: 'fixture', lang: 'en' as const, page: 'detail', productId: 'p1', assetUrl: (id: string) => `/images/${id}`, inquiryUrl: '/inquiry' };
     for (const materials of [draft.materials, undefined]) {
       const html = renderSite({ ...draft, materials }, options);

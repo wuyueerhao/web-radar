@@ -66,7 +66,7 @@ function prepare(root:Node){
     if(node.tagName==='script'||node.tagName==='style')continue;
     node.attrs=node.attrs.filter(a=>!/^data-(?:counter|count|to|suffix|prefix|progress|percent|percentage|purecounter(?:-.+)?|countdown)$/.test(a.name));
     const className=cls.split(/\s+/).filter(c=>!['odometer','timer','counter'].includes(c)).join(' ');if(className!==cls)set(node,'class',className);
-    if(node.tagName==='video'){node.childNodes=node.childNodes.filter(n=>!('tagName'in n&&n.tagName==='source'));node.attrs=node.attrs.filter(a=>!['src','autoplay','loop'].includes(a.name));}
+    if(node.tagName==='video'){node.childNodes=node.childNodes.filter(n=>!('tagName'in n&&n.tagName==='source'));node.attrs=node.attrs.filter(a=>!['src','autoplay',...(node.attrs.some(a=>a.name==='data-sp-video')?[]:['loop'])].includes(a.name));}
     if(node.tagName==='img'&&attr(node,'src').includes('/templates/')&&/avatar|logo|brand image|customer|testimonial|team-member|trusted partner/i.test(attr(node,'alt')+' '+cls)){remove(node);continue;}
     if(node.tagName==='a'&&/^https?:\/\//.test(attr(node,'href'))&&!/mailto:|tel:/.test(attr(node,'href'))&&(/theme|themeforest|wordpress|themerex|corpox|porto|crafto|juno/i.test(attr(node,'href')))){
       set(node,'href','contact/index.html');set(node,'data-wr-page','contact');
@@ -120,7 +120,14 @@ function walkMedia(root:Node,id:string,page:Page,visit:(node:Element,target:stri
     // A later product section is not another hero when the template already supplied one.
     // Keep the old heuristic only for contracts that froze its two-slot inventory.
     const genericHero=page==='home'&&((firstContentSection&&(!preferExplicitHero||heroIndex===0)&&!/senseng|crafto|juno|consulting/.test(id))||(id==='corpox-ai-agency'&&cls.split(/\s+/).includes('ai-agency-demo-banner')));
-    if(slide||sensengHero||genericHero){const slot=imageSlot(`hero-slide-${heroIndex++}`,'home','collection',bw,bh,'Homepage collection banner; every selected product in a distinct composition');visit(n,slot.id,slot,parents,'background');}
+    if(slide||sensengHero||genericHero){
+      const single=id.startsWith('single-');
+      const slot=imageSlot(`hero-slide-${heroIndex++}`,'home',single?'scene':'collection',bw,bh,single?'Homepage hero showing only the selected primary product':'Homepage collection banner; every selected product in a distinct composition');
+      if(single){
+        const media=elements(n).find(child=>child.tagName==='video')||elements(n).find(child=>child.tagName==='img');
+        if(media)visit(media,slot.id,slot,[...parents,n],media.tagName==='video'?'video':'image');
+      }else visit(n,slot.id,slot,parents,'background');
+    }
     if(n.tagName==='img'&&slotIndex!==''&&layout){
       const raw=layout.slots[Number(slotIndex)];
       if(raw){const r=region(n,parents);const role:ImageSlot['role']=/about|company|process|reminder|triggers/i.test(raw.alt)?'facility':'scene';
@@ -219,7 +226,7 @@ function modernInventory(id:string,revision=modernMaterialsRevision(id)):Invento
   const cached=modernInventories.get(revision);if(cached)return cached;
   const previous=inventory(id,revision===aiAgencyHeroRevision);if(!previous)return;
   const result=structuredClone(previous),contract=result.contract;
-  contract.guideRevision='2026-09-20.1';contract.contractRevision=revision;
+  contract.guideRevision=id.startsWith('single-')?'2026-09-26.1':'2026-09-20.1';contract.contractRevision=revision;
   contract.imageSlots=contract.imageSlots.filter(s=>s.page!=='about');
   // Juno's legacy copy map also contains shared chrome used on other pages.
   contract.textSlots=contract.textSlots.filter(s=>s.page!=='about'||s.id==='company-about'||s.id.includes('-seo-')||!!result.legacyText?.[s.id]);

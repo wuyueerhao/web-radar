@@ -58,7 +58,7 @@ describe('typed materials preserve template layouts with confirmed content',()=>
       for(const page of ['home','catalog','detail','about','contact']){
         const html=renderTypedMaterialsSite(draft,{projectId:'typed',lang:'en',page,productId:'real-0',assetUrl:id=>`/bound/${id}`,inquiryUrl:'/inquiry',preview:true});
         const visit=(n:any)=>{if(n.tagName==='img'||n.attrs?.some((a:any)=>a.name==='data-wr-material-image')){const attrs=Object.fromEntries((n.attrs||[]).map((a:any)=>[a.name,a.value]));if(attrs['data-wr-material-image'])seen.add(attrs['data-wr-material-image']);}for(const c of n.childNodes||[])visit(c);};visit(parse(html));
-        if(page==='catalog')for(const p of draft.products)expect(html.includes(`data-wr-product-id="${p.id}"`),id+' catalog '+p.id).toBe(true);
+        if(page==='catalog')for(const p of (id.startsWith('single-')?draft.products.slice(0,1):draft.products))expect(html.includes(`data-wr-product-id="${p.id}"`),id+' catalog '+p.id).toBe(true);
         if(page==='detail')expect(html.includes('/bound/extra-0'),id+' original gallery').toBe(true);
       }
       expect(contract.imageSlots.filter(s=>s.id!=='product-gallery'&&!seen.has(s.id)).map(s=>s.id),id+' unused contract image slots').toEqual([]);
@@ -162,10 +162,10 @@ describe('typed materials preserve template layouts with confirmed content',()=>
       const root=parse(renderSite(draft,{projectId:'typed',lang:'en',page:'home',assetUrl:assetId=>`/bound/${assetId}`,inquiryUrl:'/inquiry',imageVariants:(assetId,widths)=>widths.map(width=>({url:`/bound/${assetId}?width=${width}`,width,height:width/2}))}));
       const images:any[]=[];let primaryHeadings=0,collectionHeroes=0,customBanners=0;
       const walk=(n:any)=>{const a=Object.fromEntries((n.attrs||[]).map((a:any)=>[a.name,a.value]));if(n.tagName==='img')images.push(a);if(n.tagName==='h1')primaryHeadings++;if('data-wr-collection-hero'in a)collectionHeroes++;if(a['data-wr-banner']==='custom')customBanners++;for(const child of n.childNodes||[])walk(child);};walk(root);
-      expect(collectionHeroes,id+' collection hero').toBe(1);
+      expect(collectionHeroes,id+' collection hero').toBe(id.startsWith('single-')?0:1);
       expect(primaryHeadings,id+' primary heading').toBe(1);
       expect(customBanners,id+' confirmed-material boundary').toBe(0);
-      for(const slot of contract.imageSlots.filter(s=>s.id.startsWith('hero-slide-'))){
+      for(const slot of contract.imageSlots.filter(s=>!id.startsWith('single-')&&s.id.startsWith('hero-slide-'))){
         const image=images.find(a=>a['data-wr-material-image']===slot.id);
         expect(image,id+' '+slot.id).toBeDefined();
         expect(image.src).toContain(`/bound/bound-${slot.id}-all`);

@@ -1,3 +1,4 @@
+import { singleProductRuntime } from '../templates/themes/singleProduct';
 import { bannerRuntime } from '../shared/banner-runtime';
 import { materialsRuntime } from '../shared/materials-runtime';
 import { productImageViewerRuntime } from '../shared/product-image-viewer';
@@ -187,6 +188,7 @@ export function SitePreview({
           if (!status) { status = document.createElement('p'); status.setAttribute('role','status'); form.append(status); }
           status.textContent = 'Preview: form validation passed. No message was sent.';
         });
+        ${singleProductRuntime}
         const video = document.getElementById('hero-video');
         const toggle = document.getElementById('video-toggle');
         const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -285,11 +287,7 @@ export function SitePreview({
   return (
     <div className="preview-overlay" role="dialog" aria-modal="true" aria-label="私有整站预览">
       <div className="preview-toolbar">
-        <div className="preview-title-group">
-          <Button onClick={onClose} className="preview-back">
-            <Icon name="back" />
-            {draftPreview ? '返回选择模板' : '返回编辑'}
-          </Button>
+        <div>
           <span className="preview-lock">
             <Icon name="lock" />
           </span>

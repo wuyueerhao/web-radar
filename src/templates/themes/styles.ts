@@ -1959,6 +1959,19 @@ body[data-template="single-wellness-nordic"] {
   .sa-stages-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
+  .sa-hero-pure-image-banner {
+    height: 55vh !important;
+    min-height: 420px !important;
+  }
+  .sa-hero-pure-image-plaque {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+  .sw-hero-split-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1994,12 +2007,22 @@ body[data-template="single-wellness-nordic"] {
   .sa-detail-grid,
   .sw-footer-grid,
   .sw-hero-grid,
+  .sw-hero-split-grid,
   .sw-rhythm-grid,
   .sw-clinical-grid,
   .sw-provenance-grid,
   .sw-detail-grid {
     grid-template-columns: 1fr !important;
     gap: 20px !important;
+  }
+  .sa-hero-pure-image-banner {
+    height: 48vh !important;
+    min-height: 360px !important;
+  }
+  .sa-hero-pure-image-plaque {
+    bottom: 16px !important;
+    left: 16px !important;
+    right: 16px !important;
   }
 }
 
