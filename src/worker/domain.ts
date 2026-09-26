@@ -1,3 +1,4 @@
+import { viewTeamData } from '../shared/access';
 import { ProductIdentitySchema } from "../shared/product-identity";
 import type { BannerTarget } from '../shared/model';
 import { bannerAssets, pageBanners } from '../shared/banner-config';
@@ -391,7 +392,7 @@ export function canManage(project: Project, principal: Principal): boolean {
   return (
     principal.systemRole === 'super_admin' ||
     (principal.workspaceId === project.workspaceId &&
-      (project.ownerId === principal.userId || principal.workspaceRole === 'admin'))
+      (project.ownerId === principal.userId || viewTeamData(principal)))
   );
 }
 export function videoInputKey(d: Draft): string {

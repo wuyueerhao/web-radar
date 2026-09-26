@@ -1,3 +1,5 @@
+import { applyUserAccess } from './user-access';
+import { writeBusiness } from '../shared/access';
 import { ProductIdentitySchema } from '../shared/product-identity';
 import { blocksModeChange, buildMode } from '../shared/build-mode';
 import { MaterialsService } from './materials-service';
@@ -258,6 +260,9 @@ export class DomainService {
     )
       return this.submitInquiry(request, path[3]);
     const principal = this.principal(request);
+    const readOnlyPost = method === 'POST' && (/^\/api\/projects\/[^/]+\/preview$/.test(url.pathname) || /^\/internal\/materials-submissions\/[^/]+\/status$/.test(url.pathname));
+    if (!['GET','HEAD'].includes(method) && !readOnlyPost && !writeBusiness(principal))
+      throw new DomainError(403, 'read_only_role', '当前角色仅可查看数据，不能修改或执行任务。');
     if (path[0] === 'internal' && path[1] === 'product-radar-projects')
       return this.productRadarProject(request, principal, path.slice(2));
     if(path[0]==='internal'&&path[1]==='materials-submissions'&&method==='POST'){
@@ -2674,7 +2679,9 @@ export class DomainService {
       'context',
       {},
     );
-    return this.project(job.projectId, result.principal);
+    const principal = await applyUserAccess(this.env, result.principal);
+    requireCondition(writeBusiness(principal),403,'read_only_role','当前角色不能执行生成或发布任务。');
+    return this.project(job.projectId, principal);
   }
   private async execute(job: Job): Promise<void> {
     const input = job.input as JobInput;

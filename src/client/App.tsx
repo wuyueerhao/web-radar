@@ -1,3 +1,4 @@
+import { viewTeamData, writeBusiness } from '../shared/access';
 import { PendingWebsiteCreation } from './website-creation';
 import type { ProjectSummary, ProjectList } from '../shared/model';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
@@ -30,6 +31,7 @@ import {
 const Editor = lazy(() => import('./Editor'));
 const Dashboard = lazy(() => import('./Dashboard'));
 const Outreach = lazy(() => import('../outreach/client/App'));
+const UserManagement = lazy(() => import('./UserManagement'));
 const Admin = lazy(() => import('./Admin'));
 import { ErrorBoundary } from './ErrorBoundary';
 import { nextDraftStep, projectStatus, workflowSteps } from './workflow';
@@ -116,10 +118,10 @@ export default function App() {
         return null;
       }
     });
-  const [view, setView] = useState<'dashboard' | 'projects' | 'admin' | 'services' | 'edm' | 'site-messages'>(() => {
+  const [view, setView] = useState<'dashboard' | 'projects' | 'users' | 'admin' | 'services' | 'edm' | 'site-messages'>(() => {
       try {
         const v = new URL(window.location.href).searchParams.get('view');
-        if (v === 'dashboard' || v === 'projects' || v === 'admin' || v === 'services' || v === 'edm' || v === 'site-messages') return v;
+        if (v === 'users' || v === 'dashboard' || v === 'projects' || v === 'admin' || v === 'services' || v === 'edm' || v === 'site-messages') return v;
       } catch {}
       return 'dashboard';
     }),
@@ -378,6 +380,7 @@ export default function App() {
                 <Icon name="globe" />
                 服务状态
               </button>
+              {viewTeamData(principal) && <button className={view === 'users' ? 'active' : ''} onClick={() => setView('users')}><Icon name="users"/>用户与业务数据</button>}
               {principal.systemRole === 'super_admin' && (
                 <button
                   className={view === 'admin' ? 'active' : ''}
@@ -419,6 +422,8 @@ export default function App() {
               <ErrorBoundary scope="section" title="营销功能加载异常" description="请重试或返回网站项目。" onBack={()=>setView('projects')} backText="返回网站项目">
                 <Suspense fallback={<ChunkFallback/>}><Outreach key={`${principal.userId}:${principal.workspaceId}`} principal={principal} section={view}/></Suspense>
               </ErrorBoundary>
+            ) : view === 'users' ? (
+              <Suspense fallback={<ChunkFallback/>}><UserManagement principal={principal}/></Suspense>
             ) : view === 'admin' ? (
               <ErrorBoundary
                 scope="section"
@@ -737,7 +742,9 @@ function Projects({ onOpen, principal }: { onOpen: (id: string) => void; princip
           </Button>
           <Button
             kind="primary"
+            disabled={!writeBusiness(principal)}
             onClick={() => {
+              if (!writeBusiness(principal)) return;
               setName(creation.pending?.name || '');
               setCreateOpen(true);
             }}
@@ -847,6 +854,7 @@ function Projects({ onOpen, principal }: { onOpen: (id: string) => void; princip
                   </Button>
                   <Button
                     kind="danger"
+                    disabled={!writeBusiness(principal)}
                     onClick={() => setBatchDeleteOpen(true)}
                     busy={deleting}
                     style={{
@@ -900,12 +908,13 @@ function Projects({ onOpen, principal }: { onOpen: (id: string) => void; princip
                     className="project-card-delete-overlay"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setDeleteTarget(project);
+                      if (writeBusiness(principal)) setDeleteTarget(project);
                     }}
                   >
                     <button
                       type="button"
                       className="project-card-delete-btn"
+                      disabled={!writeBusiness(principal)}
                       title={`删除「${project.name}」`}
                       aria-label={`删除「${project.name}」`}
                     >

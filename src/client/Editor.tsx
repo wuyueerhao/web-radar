@@ -1,3 +1,4 @@
+import { writeBusiness } from '../shared/access';
 import { DeploymentSettings } from './DeploymentSettings';
 import { matchesDeployment } from '../shared/deployment';
 import { blocksModeChange, withBuildMode } from '../shared/build-mode';
@@ -794,6 +795,20 @@ export default function Editor({
         </Button>
       </div>
     );
+  if (!writeBusiness(principal)) return (
+    <div className="editor-shell">
+      <header className="editor-topbar"><div className="editor-brand">
+        <Button onClick={() => requestLeave()}><Icon name="back"/>返回网站列表</Button>
+        <a className="editor-home-link" href="?view=dashboard" aria-label="Web Radar · 返回控制台首页" onClick={event=>{event.preventDefault();requestLeave('home')}}><Brand/></a>
+      </div></header>
+      <main className="panel" style={{margin:'32px'}}><h1>{project.name}</h1><Notice>当前角色仅可查看项目，不能修改、生成或发布。</Notice>
+        <p>创建者：{project.ownerId} · 创建时间：{dateTime(project.createdAt)}</p>
+        <p>产品数量：{project.draft.products.length} · 草稿版本：V{project.version}</p>
+        <Button onClick={()=>showPreview()}><Icon name="eye"/>打开私有整站预览</Button>
+      </main>
+      {previewOpen&&<SitePreview project={project} onClose={closePreview}/>}
+    </div>
+  );
   const draft = project.draft;
   const onlineRelease = detail.releases.find(release => release.id === project.publishedReleaseId && release.status === 'succeeded');
   const alreadyPublished = !project.offline && !!onlineRelease?.draft && samePublishedDraft(draft, onlineRelease.draft) && (!project.deployment || matchesDeployment(onlineRelease.hostingTarget,project.deployment,true));

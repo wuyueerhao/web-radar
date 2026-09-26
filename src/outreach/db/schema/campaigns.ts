@@ -31,6 +31,7 @@ export const campaigns = sqliteTable(
   "edm_campaigns",
   {
     id: text("id").primaryKey(),
+    createdBy: text("created_by"),
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),

@@ -17,7 +17,8 @@ export function registerMaterialsIntegration(app:Hono<HonoEnv>){
     if(!parsed.success)return c.json({code:'invalid_materials',message:'已确认资料格式有误。',issues:parsed.error.issues.map(i=>({path:i.path.join('.'),code:i.code,message:i.message}))},400);
     if(!parentOrigins(c.env).includes(parsed.data.parentOrigin))throw new ApiError(403,'origin_forbidden','此来源不允许打开 Web Radar。');
     const principal=await currentMaterialsPrincipal(c.env,parsed.data.principal);
-    return forward(c,'',principal,{...parsed.data,principal});
+    const { appRole: _localRole, ...externalPrincipal } = principal;
+    return forward(c,'',principal,{...parsed.data,principal:externalPrincipal});
   });
   app.post('/materials-submissions/:id/status',async(c)=>{
     await verifyMaterialsSecret(c.req.raw,c.env);

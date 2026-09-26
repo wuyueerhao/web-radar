@@ -2,12 +2,12 @@ import type { EmailOverview, SiteOverview } from '../../../shared/outreach-stats
 import { percentage } from '../../../shared/outreach-stats';
 import { isNoContactTarget, isInaccessibleTarget } from '../queues/site-message.queue';
 
-export async function emailOverview(db: D1Database, workspaceId: string): Promise<EmailOverview> {
+export async function emailOverview(db: D1Database, workspaceId: string, creatorId?: string): Promise<EmailOverview> {
   // Reconcile counters per campaign; one campaign's row events must not hide another's provider totals.
   const [totals, contacts] = await Promise.all([
     db
       .prepare(
-        `WITH owned AS (SELECT * FROM edm_campaigns WHERE user_id = ?), recipients AS (
+        `WITH owned AS (SELECT * FROM edm_campaigns WHERE user_id = ? ${creatorId?'AND created_by=?':''}), recipients AS (
       SELECT r.campaign_id,
         SUM(CASE WHEN r.sent_at IS NOT NULL OR r.ses_message_id IS NOT NULL OR r.status IN ('sent','delivered','opened','clicked','bounced') THEN 1 ELSE 0 END) AS sent,
         SUM(CASE WHEN r.delivered_at IS NOT NULL OR r.opened_at IS NOT NULL OR r.clicked_at IS NOT NULL OR r.status IN ('delivered','opened','clicked') THEN 1 ELSE 0 END) AS delivered,
@@ -23,7 +23,7 @@ export async function emailOverview(db: D1Database, workspaceId: string): Promis
       COALESCE(SUM(MAX(c.total_bounced,COALESCE(r.bounced,0))),0) AS totalBounced
       FROM owned c LEFT JOIN recipients r ON r.campaign_id=c.id`,
       )
-      .bind(workspaceId)
+      .bind(workspaceId,...(creatorId?[creatorId]:[]))
       .first<any>(),
     db
       .prepare(
@@ -45,19 +45,19 @@ export async function emailOverview(db: D1Database, workspaceId: string): Promis
     bounceRate: percentage(data.totalBounced, data.totalSent),
   };
 }
-export async function siteOverview(db: D1Database, workspaceId: string): Promise<SiteOverview> {
+export async function siteOverview(db: D1Database, workspaceId: string, creatorId?: string): Promise<SiteOverview> {
   const [jobs, targets] = await Promise.all([
     db
-      .prepare('SELECT COUNT(*) AS n FROM edm_site_message_jobs WHERE user_id=?')
-      .bind(workspaceId)
+      .prepare(`SELECT COUNT(*) AS n FROM edm_site_message_jobs WHERE user_id=? ${creatorId?'AND created_by=?':''}`)
+      .bind(workspaceId,...(creatorId?[creatorId]:[]))
       .first<{ n: number }>(),
     db
       .prepare(
         `SELECT t.status,t.result_code AS resultCode,t.result_message AS resultMessage,COUNT(*) AS n
       FROM edm_site_message_targets t JOIN edm_site_message_jobs j ON j.id=t.job_id
-      WHERE j.user_id=? GROUP BY t.status,t.result_code,t.result_message`,
+      WHERE j.user_id=? ${creatorId?'AND j.created_by=?':''} GROUP BY t.status,t.result_code,t.result_message`,
       )
-      .bind(workspaceId)
+      .bind(workspaceId,...(creatorId?[creatorId]:[]))
       .all<any>(),
   ]);
   const data: SiteOverview = {

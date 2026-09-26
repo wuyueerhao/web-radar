@@ -1,3 +1,4 @@
+import { applyUserAccess } from './user-access';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { AppEnv, HonoEnv } from './env';
@@ -34,6 +35,7 @@ function sessionCookie(request: Request, token: string, maxAge = SESSION_MAX_MS 
   return `${cookieName(request)}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
 }
 export async function mintSession(env: AppEnv, principal: Principal, testIdentity?: string) {
+  if (!principal.appRole) principal = await applyUserAccess(env, principal);
   const token = randomToken();
   const now = Date.now();
   const expiresAt = now + SESSION_IDLE_MS;
@@ -76,7 +78,7 @@ export async function authenticate(
   if (row.test_identity) {
     if (!testMode(env) || !isLoopback(new URL(request.url).hostname))
       throw new ApiError(401, 'test_session_invalid', '测试登录仅供本地测试环境使用。');
-    principal = testPrincipal(row.test_identity);
+    principal = await applyUserAccess(env, testPrincipal(row.test_identity));
   } else {
     principal = await currentPrincipal(env, {
       userId: row.user_id,

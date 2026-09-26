@@ -1,3 +1,4 @@
+import { testDb } from './helpers/db';
 import {beforeEach,afterEach,describe,expect,it,vi} from 'vitest';
 import {Hono}from'hono';
 import {createTemplateGuidesApp}from'../src/worker/template-guides/api';
@@ -9,7 +10,7 @@ import {templateMediaRequirements}from'../src/shared/template-media';
 describe('materials guide account boundary',()=>{
   let env:AppEnv;let principal:Awaited<ReturnType<typeof materialsFixture>>['principal'];
   const app=new Hono<HonoEnv>().route('/api/internal/template-guides',createTemplateGuidesApp());
-  beforeEach(async()=>{principal={...(await materialsFixture()).principal,email:'member@example.com',workspaceRole:'member'};env={PRODUCT_RADAR_BASE_URL:'https://product.example.com',PRODUCT_RADAR_INTEGRATION_SECRET:'s'.repeat(40),APP_ORIGIN:'https://web-radar.net'}as AppEnv;
+  beforeEach(async()=>{principal={...(await materialsFixture()).principal,email:'member@example.com',workspaceRole:'member'};env={DB:testDb(),PRODUCT_RADAR_BASE_URL:'https://product.example.com',PRODUCT_RADAR_INTEGRATION_SECRET:'s'.repeat(40),APP_ORIGIN:'https://web-radar.net'}as AppEnv;
     vi.stubGlobal('fetch',vi.fn(async()=>Response.json({protocolVersion:1,principal})));});
   afterEach(()=>vi.unstubAllGlobals());
   const get=(p:string,headers={})=>app.request('https://web-radar.net/api/internal/template-guides/'+p,{headers:{'X-Web-Radar-Secret':'s'.repeat(40),'X-Product-Radar-User-Id':'materials-owner','X-Product-Radar-Workspace-Id':'materials-workspace',...headers}},env);
@@ -72,7 +73,7 @@ describe('materials guide account boundary',()=>{
   it('accepts ordinary account submissions with canonical roles and rejects invalid authority before forwarding',async()=>{
     const integration=createIntegrationApp(),input=await materialsFixture();let forwarded=0;
     env.PRODUCT_RADAR_PARENT_ORIGINS=input.parentOrigin;
-    env.COORDINATOR={getByName:()=>({fetch:async(request:Request)=>{forwarded++;expect(JSON.parse(decodeURIComponent(request.headers.get('X-WR-Principal')!))).toEqual(principal);return Response.json({state:'receiving'},{status:202});}})}as unknown as AppEnv['COORDINATOR'];
+    env.COORDINATOR={getByName:()=>({fetch:async(request:Request)=>{forwarded++;expect(JSON.parse(decodeURIComponent(request.headers.get('X-WR-Principal')!))).toEqual({...principal,appRole:'member'});return Response.json({state:'receiving'},{status:202});}})}as unknown as AppEnv['COORDINATOR'];
     const post=(path:string,body:unknown,secret='s'.repeat(40))=>integration.request('https://web-radar.net'+path,{method:'POST',headers:{'Content-Type':'application/json','X-Web-Radar-Secret':secret},body:JSON.stringify(body)},env);
     const status=`/materials-submissions/${input.submissionId}/status`;
     expect((await post('/materials-submissions',input,'wrong')).status).toBe(401);
@@ -90,7 +91,7 @@ it('catalog requirements and preview URLs lock exactly the advertised immutable 
   const input = await materialsFixture();
   vi.stubGlobal('fetch', vi.fn(async () => Response.json({ protocolVersion: 1, principal: input.principal })));
   try {
-    const env = { PRODUCT_RADAR_BASE_URL: 'https://product.example.com', PRODUCT_RADAR_INTEGRATION_SECRET: 's'.repeat(40) } as AppEnv;
+    const env = { DB:testDb(), PRODUCT_RADAR_BASE_URL: 'https://product.example.com', PRODUCT_RADAR_INTEGRATION_SECRET: 's'.repeat(40) } as AppEnv;
     const app = createTemplateGuidesApp();
     const headers = { 'X-Web-Radar-Secret': 's'.repeat(40), 'X-Product-Radar-User-Id': input.principal.userId, 'X-Product-Radar-Workspace-Id': input.principal.workspaceId };
     const list = await (await app.request('https://web-radar.net/materials/catalog', { headers }, env)).json() as any;

@@ -1,3 +1,4 @@
+import { testDb } from './helpers/db';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { AppEnv } from '../src/worker/env';
 import { materialsFixture } from './fixtures/materials';
@@ -12,7 +13,7 @@ async function fixture() {
   const upstream = vi.fn(async () => Response.json({ protocolVersion: 1, principal }));
   vi.stubGlobal('fetch', upstream);
   const forwarded = vi.fn(async () => Response.json({ reachedProjectService: true }));
-  const env = { ENVIRONMENT: 'production', TEST_PROVIDERS: 'false', APP_ORIGIN: 'https://web-radar.net', PRODUCT_RADAR_BASE_URL: 'https://product.example.com', PRODUCT_RADAR_INTEGRATION_SECRET: secret, COORDINATOR: { getByName: () => ({ fetch: forwarded }) } } as unknown as AppEnv;
+  const env = { DB:testDb(), ENVIRONMENT: 'production', TEST_PROVIDERS: 'false', APP_ORIGIN: 'https://web-radar.net', PRODUCT_RADAR_BASE_URL: 'https://product.example.com', PRODUCT_RADAR_INTEGRATION_SECRET: secret, COORDINATOR: { getByName: () => ({ fetch: forwarded }) } } as unknown as AppEnv;
   const request = (action: string, key = secret, extra = {}) => app.request(`https://web-radar.net/api/integrations/product-radar/projects/${projectId}/${action}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Web-Radar-Secret': key }, body: JSON.stringify({ principal: { userId: principal.userId, workspaceId: principal.workspaceId }, ...extra }) }, env);
   return { principal, upstream, forwarded, request };
 }
@@ -25,7 +26,7 @@ it.each(['status', 'preview', 'publication-status', 'assets/image-1', 'publish',
   expect(f.forwarded).toHaveBeenCalledOnce();
   const request = (f.forwarded.mock.calls[0] as unknown as [Request])[0];
   expect(new URL(request.url).pathname).toBe(`/internal/product-radar-projects/${projectId}/${action}`);
-  expect(JSON.parse(decodeURIComponent(request.headers.get('X-WR-Principal')!))).toEqual(f.principal);
+  expect(JSON.parse(decodeURIComponent(request.headers.get('X-WR-Principal')!))).toEqual({...f.principal,appRole:'member'});
   expect(request.method).toBe(['publish', 'refresh-publication'].includes(action) ? 'POST' : 'GET');
   expect(response.headers.get('Cache-Control')).toBe('no-store');
 });

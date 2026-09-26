@@ -1,3 +1,4 @@
+import { testDb } from './helpers/db';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTemplateGuidesApp } from '../src/worker/template-guides/api';
 import { getMaterialsTemplate } from '../src/templates/materials';
@@ -6,7 +7,7 @@ import { sha256 } from '../src/worker/http';
 import type { AppEnv } from '../src/worker/env';
 
 describe('lightweight materials discovery', () => {
-  const env = { PRODUCT_RADAR_BASE_URL: 'https://product.example.com', PRODUCT_RADAR_INTEGRATION_SECRET: 's'.repeat(40) } as AppEnv;
+  const env = { DB:testDb(), PRODUCT_RADAR_BASE_URL: 'https://product.example.com', PRODUCT_RADAR_INTEGRATION_SECRET: 's'.repeat(40) } as AppEnv;
   let app: ReturnType<typeof createTemplateGuidesApp>;
   let principal: Awaited<ReturnType<typeof materialsFixture>>['principal'];
   let headers: Record<string, string>;

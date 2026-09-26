@@ -1,3 +1,4 @@
+import { viewTeamData } from '../shared/access';
 import type { Principal, ProjectList, ProjectSummary } from '../shared/model';
 import { requireCondition } from './domain';
 
@@ -29,13 +30,13 @@ export async function listProjectSummaries(
   const access =
     principal.systemRole === 'super_admin'
       ? '1=1'
-      : principal.workspaceRole === 'admin'
+      : viewTeamData(principal)
         ? 'workspace_id=?'
         : '(owner_id=? AND workspace_id=?)';
   const args =
     principal.systemRole === 'super_admin'
       ? []
-      : principal.workspaceRole === 'admin'
+      : viewTeamData(principal)
         ? [principal.workspaceId]
         : [principal.userId, principal.workspaceId];
   const state =

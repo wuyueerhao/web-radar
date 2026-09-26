@@ -1,4 +1,5 @@
 export interface Principal {
+  appRole?: import('./access').AppRole;
   userId: string;
   authSubject: string;
   email: string;

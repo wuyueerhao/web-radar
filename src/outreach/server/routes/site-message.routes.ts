@@ -1,3 +1,4 @@
+import { actorScope, creatorFilter } from '../lib/actor-scope';
 import { siteOverview } from "../lib/overview";
 import { Hono } from "hono";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
@@ -74,7 +75,7 @@ siteMessageRoutes.use("/*", requireAuth);
 siteMessageRoutes.get("/", requirePermission("site-messages:read"), async (c) => {
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
-  const rows = await db.select().from(siteMessageJobs).where(eq(siteMessageJobs.userId, user.id)).orderBy(desc(siteMessageJobs.createdAt));
+  const rows = await db.select().from(siteMessageJobs).where(actorScope(siteMessageJobs, user)).orderBy(desc(siteMessageJobs.createdAt));
 
   const jobsWithStats = await Promise.all(rows.map(async (job) => {
     const targets = await db.select({
@@ -110,14 +111,14 @@ siteMessageRoutes.get("/", requirePermission("site-messages:read"), async (c) =>
 });
 
 siteMessageRoutes.get("/stats/overview", requirePermission("site-messages:read"), async (c) => {
-  return c.json({success:true,data:await siteOverview(c.env.DB,c.get("user")!.id)});
+  return c.json({success:true,data:await siteOverview(c.env.DB,c.get("user")!.id,creatorFilter(c.get("user")!))});
 });
 
 siteMessageRoutes.get("/:id/export", requirePermission("site-messages:read"), async (c) => {
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
   const jobId = c.req.param("id");
-  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), eq(siteMessageJobs.userId, user.id)));
+  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), actorScope(siteMessageJobs, user)));
   if (!job) return c.json({ success: false, error: "任务不存在" }, 404);
 
   const targets = await db.select().from(siteMessageTargets).where(eq(siteMessageTargets.jobId, job.id)).orderBy(asc(siteMessageTargets.position));
@@ -220,7 +221,7 @@ siteMessageRoutes.get("/:id/export", requirePermission("site-messages:read"), as
 siteMessageRoutes.get("/:id", requirePermission("site-messages:read"), async (c) => {
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
-  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, c.req.param("id")), eq(siteMessageJobs.userId, user.id)));
+  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, c.req.param("id")), actorScope(siteMessageJobs, user)));
   if (!job) return c.json({ success: false, error: "任务不存在" }, 404);
   const targets = await db.select().from(siteMessageTargets).where(eq(siteMessageTargets.jobId, job.id)).orderBy(asc(siteMessageTargets.position));
 
@@ -292,6 +293,7 @@ siteMessageRoutes.post("/", requirePermission("site-messages:write"), async (c) 
     await db.insert(siteMessageJobs).values({
       id,
       userId: user.id,
+    createdBy: user.actorId || user.id,
       name,
       senderName,
       senderEmail,
@@ -332,7 +334,7 @@ siteMessageRoutes.patch("/:id", requirePermission("site-messages:write"), async 
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
   const jobId = c.req.param("id");
-  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), eq(siteMessageJobs.userId, user.id)));
+  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), actorScope(siteMessageJobs, user)));
   if (!job) return c.json({ success: false, error: "任务不存在" }, 404);
   if (["queued", "running"].includes(job.status)) return c.json({ success: false, error: "排队中或执行中的任务不能编辑" }, 409);
 
@@ -390,7 +392,7 @@ siteMessageRoutes.post("/:id/start", requirePermission("site-messages:send"), as
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
   const jobId = c.req.param("id");
-  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), eq(siteMessageJobs.userId, user.id)));
+  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), actorScope(siteMessageJobs, user)));
   if (!job) return c.json({ success: false, error: "任务不存在" }, 404);
 
   if (["queued", "running"].includes(job.status)) return c.json({ error: "任务正在执行，请勿重复启动" }, 409);
@@ -457,7 +459,7 @@ siteMessageRoutes.post("/:id/reset", requirePermission("site-messages:send"), as
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
   const jobId = c.req.param("id");
-  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), eq(siteMessageJobs.userId, user.id)));
+  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), actorScope(siteMessageJobs, user)));
   if (!job) return c.json({ success: false, error: "任务不存在" }, 404);
 
   if (["queued", "running"].includes(job.status)) return c.json({ error: "请先暂停任务再重置" }, 409);
@@ -498,7 +500,7 @@ siteMessageRoutes.post("/:id/pause", requirePermission("site-messages:send"), as
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
   const jobId = c.req.param("id");
-  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), eq(siteMessageJobs.userId, user.id)));
+  const [job] = await db.select().from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), actorScope(siteMessageJobs, user)));
   if (!job) return c.json({ success: false, error: "任务不存在" }, 404);
   if (!["queued", "running"].includes(job.status)) return c.json({ success: false, error: "当前任务不在执行中" }, 409);
 
@@ -510,7 +512,7 @@ siteMessageRoutes.delete("/:id", requirePermission("site-messages:delete"), asyn
   const db = createDb(c.env.DB);
   const user = c.get("user")!;
   const jobId = c.req.param("id");
-  const [job] = await db.select({ id: siteMessageJobs.id }).from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), eq(siteMessageJobs.userId, user.id)));
+  const [job] = await db.select({ id: siteMessageJobs.id }).from(siteMessageJobs).where(and(eq(siteMessageJobs.id, jobId), actorScope(siteMessageJobs, user)));
   if (!job) return c.json({ success: false, error: "任务不存在" }, 404);
   await db.delete(siteMessageJobs).where(eq(siteMessageJobs.id, jobId));
   return c.json({ success: true });

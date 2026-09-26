@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 export function testDb(): D1Database {
   const db = new DatabaseSync(':memory:');
   db.exec(readFileSync('migrations/0001_auth.sql', 'utf8'));
+  db.exec(readFileSync('migrations/0010_user_management.sql','utf8').split('INSERT OR IGNORE')[0]);
   const prepare = (sql: string, args: unknown[] = []): D1PreparedStatement =>
     ({
       bind: (...values: unknown[]) => prepare(sql, values),

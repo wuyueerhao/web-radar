@@ -66,6 +66,7 @@ const admin: Principal = { ...owner, userId: 'admin', workspaceRole: 'admin' };
 const platform: Principal = { ...owner, userId: 'platform', systemRole: 'super_admin' };
 function database() {
   const db = new DatabaseSync(':memory:');
+  db.exec(readFileSync('migrations/0010_user_management.sql','utf8').split('INSERT OR IGNORE')[0]);
   db.exec(readFileSync('migrations/0002_business.sql', 'utf8'));
   db.exec(readFileSync('migrations/0003_source_reviews.sql', 'utf8'));
   db.exec(readFileSync('migrations/0004_unlimited_quota.sql', 'utf8'));

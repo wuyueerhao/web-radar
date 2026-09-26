@@ -1,3 +1,4 @@
+import { effectiveRole, viewTeamData, writeBusiness } from '../shared/access';
 import { handleResendSync, type ResendSyncMessage } from '../outreach/server/lib/resend-tracking';
 import { resendWebhookRoutes } from '../outreach/server/routes/resend.routes';
 import { Hono } from 'hono';
@@ -43,13 +44,14 @@ export async function outreachFetch(request:Request, env:AppEnv, ctx:Parameters<
     const app=new Hono<{Bindings:Bindings}>();app.route('/api/outreach/images',imagesRoutes);return app.fetch(request,bindings,ctx);
   }
   const {principal}=await authenticate(request,env);
+  if (!['GET','HEAD'].includes(request.method) && !writeBusiness(principal)) throw new ApiError(403,'read_only_role','当前角色仅可查看数据，不能修改或发送。');
   if (/\/(send|start)$/.test(path) && request.method==='POST') {
     if(testMode(env)) throw new ApiError(503,'outreach_test_mode','测试环境仅支持保存草稿，不执行真实发送。');
     if(!bindings.EMAIL_QUEUE || (path.includes('/site-messages/')&&(!bindings.SITE_MESSAGE_QUEUE||(!bindings.BROWSER&&!testMode(env))))) throw new ApiError(503,'outreach_not_configured','发送队列或浏览器服务尚未配置。');
   }
   await env.DB.prepare('INSERT INTO edm_users (id,name,email,role,created_at,updated_at) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING').bind(principal.workspaceId,principal.workspaceName,principal.workspaceId+'@workspace.invalid','member',Math.floor(Date.now()/1000),Math.floor(Date.now()/1000)).run();
   const app=new Hono<{Bindings:Bindings;Variables:Variables}>();
-  app.use('*',async(c,next)=>{c.set('user',{id:principal.workspaceId,name:principal.displayName,email:principal.email,role:principal.systemRole==='super_admin'||principal.workspaceRole==='admin'?'admin':'member'});await next()});
+  app.use('*',async(c,next)=>{c.set('user',{id:principal.workspaceId,name:principal.displayName,email:principal.email,actorId:principal.userId,teamRead:viewTeamData(principal),role:['super_admin','admin'].includes(effectiveRole(principal))?'admin':writeBusiness(principal)?'member':'viewer'});await next()});
   app.route('/',privateApi);
   app.onError((error,c)=>{console.error('Outreach request failed',testMode(env)?error:error.name);return c.json({error:'操作失败，请检查输入或服务配置后重试。'},500)});
   return app.fetch(request,bindings,ctx);

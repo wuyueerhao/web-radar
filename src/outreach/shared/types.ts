@@ -20,6 +20,8 @@ export type Bindings = {
 // Hono 应用变量类型
 export type Variables = {
   user: {
+    actorId?: string;
+    teamRead?: boolean;
     id: string;
     name: string;
     email: string;

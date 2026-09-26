@@ -1,3 +1,4 @@
+import { writeBusiness } from '../shared/access';
 import {availableMaterialsTemplateReleases} from '../templates/materials-releases';
 import type { Asset, Draft, Principal, Project } from '../shared/model';
 import { retainedProductDisplayGroups } from '../shared/product-display';
@@ -140,6 +141,7 @@ export class MaterialsService {
     const deadline=Date.now()+receiveTickMs;
     try{
       const principal=await currentMaterialsPrincipal(this.env,operation.principal);
+      if(!writeBusiness(principal))throw new ApiError(403,'read_only_role','当前角色不能接收或修改项目资料。');
       const source=await this.env.MEDIA.get(operation.snapshotKey);
       if(!source)throw new ApiError(409,'materials_snapshot_missing','已确认资料快照不存在。');
       const input=materialsSubmissionSchema.parse(JSON.parse(await source.text()));
@@ -173,6 +175,7 @@ export class MaterialsService {
       }
       if(operation.receipt.receivedMedia===operation.receipt.totalMedia){
         const current=await currentMaterialsPrincipal(this.env,principal);
+      if(!writeBusiness(current))throw new ApiError(403,'read_only_role','当前角色不能接收或修改项目资料。');
         await this.hooks.lock(async()=>{
           const target=await this.target(current,input);
           const previousAssets=target?.draft.productDisplayGroups?.length?await this.store.list<Asset>('assets','project_id=?',[target.id]):[];

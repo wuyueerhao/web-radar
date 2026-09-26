@@ -1,14 +1,15 @@
+import { testDb } from './helpers/db';
 import { afterEach, expect, it, vi } from 'vitest';
 import { currentPrincipal, prRequest } from '../src/worker/product-radar';
 import type { AppEnv } from '../src/worker/env';
 import type { Principal } from '../src/shared/model';
-const env = () => ({PRODUCT_RADAR_BASE_URL:'https://account.example.test',PRODUCT_RADAR_INTEGRATION_SECRET:'test-only-secret-longer-than-32-characters'}) as AppEnv;
+const env = () => ({DB:testDb(),PRODUCT_RADAR_BASE_URL:'https://account.example.test',PRODUCT_RADAR_INTEGRATION_SECRET:'test-only-secret-longer-than-32-characters'}) as AppEnv;
 const principal:Principal={userId:'u',workspaceId:'w',authSubject:'s',email:'u@example.test',displayName:'U',systemRole:'user',workspaceRole:'member',workspaceName:'W'};
 const success=()=>Response.json({protocolVersion:1,principal});
 afterEach(()=>vi.unstubAllGlobals());
 it('retries a timed-out read-only context once and recovers',async()=>{
  const fetcher=vi.fn().mockRejectedValueOnce(new DOMException('timeout','TimeoutError')).mockResolvedValueOnce(success());vi.stubGlobal('fetch',fetcher);
- expect(await currentPrincipal(env(),principal)).toEqual(principal);expect(fetcher).toHaveBeenCalledTimes(2);
+ expect(await currentPrincipal(env(),principal)).toEqual({...principal,appRole:'member'});expect(fetcher).toHaveBeenCalledTimes(2);
 });
 const interruptedBody=()=>new Response(new ReadableStream({start(controller){
  controller.enqueue(new TextEncoder().encode('{"protocolVersion":1,'));
@@ -16,7 +17,7 @@ const interruptedBody=()=>new Response(new ReadableStream({start(controller){
 }}));
 it('recovers when the context connection fails after response headers',async()=>{
  const fetcher=vi.fn().mockResolvedValueOnce(interruptedBody()).mockResolvedValueOnce(success());vi.stubGlobal('fetch',fetcher);
- expect(await currentPrincipal(env(),principal)).toEqual(principal);expect(fetcher).toHaveBeenCalledTimes(2);
+ expect(await currentPrincipal(env(),principal)).toEqual({...principal,appRole:'member'});expect(fetcher).toHaveBeenCalledTimes(2);
 });
 it('shares one retry budget between header and body failures',async()=>{
  const fetcher=vi.fn().mockResolvedValueOnce(new Response(null,{status:503})).mockResolvedValueOnce(interruptedBody());vi.stubGlobal('fetch',fetcher);

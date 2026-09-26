@@ -1,3 +1,4 @@
+import { userManagement } from './user-management';
 import { outreachFetch, outreachQueue } from './outreach';
 import { withStoredEmailStatus } from './provider-settings';
 import { Hono } from 'hono';
@@ -85,6 +86,7 @@ app.all('/api/public/*', async (c) => {
   headers.delete('X-WR-Principal');
   return c.env.COORDINATOR.getByName('global').fetch(new Request(c.req.raw, { headers }));
 });
+app.route('/api/management',userManagement);
 app.all('/api/outreach/*',c=>outreachFetch(c.req.raw,c.env,c.executionCtx));
 app.all('/api/*', async (c) => {
   const { principal } = await authenticate(c.req.raw, c.env);

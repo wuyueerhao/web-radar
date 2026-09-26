@@ -1,3 +1,4 @@
+import { actorScope, creatorFilter } from '../lib/actor-scope';
 import { validSendRate } from '../lib/email-pacing';
 import { prepareResendTracking, startResendSync } from '../lib/resend-tracking';
 import {resolveSenderDomains} from '../lib/sender-domains';
@@ -166,7 +167,7 @@ campaignRoutes.get("/", requirePermission("campaigns:read"), async (c) => {
   const pageSize = Math.min(parseInt(c.req.query("pageSize") || "20"), 100);
   const status = c.req.query("status");
 
-  const conditions = [eq(campaigns.userId, user.id)];
+  const conditions = [actorScope(campaigns, user)];
   if (status) {
     conditions.push(eq(campaigns.status, status as any));
   }
@@ -246,7 +247,7 @@ campaignRoutes.get("/:id/export", requirePermission("campaigns:read"), async (c)
   const user = c.get("user")!;
   const id = c.req.param("id");
   const [campaign] = await db.select().from(campaigns)
-    .where(and(eq(campaigns.id, id), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, id), actorScope(campaigns, user)));
   if (!campaign) return c.json({ success: false, error: "活动不存在" }, 404);
   const rows = await db.select({
     email: contacts.email, name: contacts.name, status: campaignRecipients.status,
@@ -274,7 +275,7 @@ campaignRoutes.get("/:id", requirePermission("campaigns:read"), async (c) => {
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!campaign) {
     return c.json({ success: false, error: "活动不存在" }, 404);
@@ -348,6 +349,7 @@ campaignRoutes.post("/", requirePermission("campaigns:write"), async (c) => {
   await db.insert(campaigns).values({
     id,
     userId: user.id,
+    createdBy: user.actorId || user.id,
     templateId: body.templateId || null,
     name: body.name.trim(),
     senderEmail: body.senderEmail.trim(),
@@ -371,7 +373,7 @@ campaignRoutes.put("/:id", requirePermission("campaigns:write"), async (c) => {
   const [existing] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!existing) {
     return c.json({ success: false, error: "活动不存在" }, 404);
@@ -415,7 +417,7 @@ campaignRoutes.delete("/:id", requirePermission("campaigns:delete"), async (c) =
   const [existing] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!existing) {
     return c.json({ success: false, error: "活动不存在" }, 404);
@@ -444,7 +446,7 @@ campaignRoutes.get("/:id/recipients", requirePermission("campaigns:read"), async
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!campaign) {
     return c.json({ success: false, error: "活动不存在" }, 404);
@@ -503,7 +505,7 @@ campaignRoutes.post("/:id/recipients", requirePermission("campaigns:write"), asy
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!campaign) {
     return c.json({ success: false, error: "活动不存在" }, 404);
@@ -596,7 +598,7 @@ campaignRoutes.delete("/:id/recipients/:contactId", requirePermission("campaigns
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!campaign) {
     return c.json({ success: false, error: "活动不存在" }, 404);
@@ -652,7 +654,7 @@ campaignRoutes.post("/:id/send", requirePermission("campaigns:send"), async (c) 
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!campaign) {
     return c.json({ success: false, error: "活动不存在" }, 404);
@@ -805,7 +807,7 @@ campaignRoutes.post("/:id/pause", requirePermission("campaigns:send"), async (c)
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.userId, user.id)));
+    .where(and(eq(campaigns.id, campaignId), actorScope(campaigns, user)));
 
   if (!campaign || campaign.status !== "sending") {
     return c.json({ success: false, error: "只能暂停发送中的活动" }, 400);
@@ -822,7 +824,7 @@ campaignRoutes.post("/:id/pause", requirePermission("campaigns:send"), async (c)
 // ====== 仪表盘统计 ======
 
 campaignRoutes.get("/stats/overview", requirePermission("campaigns:read"), async (c) => {
-  return c.json({success:true,data:await emailOverview(c.env.DB,c.get("user")!.id)});
+  return c.json({success:true,data:await emailOverview(c.env.DB,c.get("user")!.id,creatorFilter(c.get("user")!))});
 });
 
 // Reconcile only known accepted emails, scoped to the caller's workspace.

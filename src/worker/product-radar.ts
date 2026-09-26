@@ -1,3 +1,4 @@
+import { applyUserAccess } from './user-access';
 import { z } from 'zod';
 import type { Principal, ProductSnapshot } from '../shared/model';
 import type { AppEnv } from './env';
@@ -186,7 +187,7 @@ export async function currentPrincipal(env: AppEnv, principal: Principal): Promi
   // Share only an in-flight lookup. Never cache a completed permission result:
   // the next request must see revoked roles or workspace membership immediately.
   const lookup = prService<{ principal: Principal }>(env, principal, 'context')
-    .then(result => result.principal)
+    .then(result => applyUserAccess(env, result.principal))
     .finally(() => reads!.delete(key));
   reads.set(key, lookup);
   return lookup;

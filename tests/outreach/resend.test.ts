@@ -20,6 +20,7 @@ const app=(role='admin',user='u')=>{const h=new Hono<any>();h.use('*',async(c,ne
 beforeEach(async()=>{
  sqlite=new DatabaseSync(':memory:');for(const file of ['0007_outreach.sql','0008_resend_tracking.sql','0009_email_scheduling.sql'])sqlite.exec(readFileSync('migrations/'+file,'utf8'));
  env={DB:d1(sqlite),CREDENTIAL_KEY:'test-key',BETTER_AUTH_SECRET:'test-auth',BETTER_AUTH_URL:'https://app.example.com'};
+ sqlite.exec("ALTER TABLE edm_campaigns ADD COLUMN created_by TEXT; ALTER TABLE edm_site_message_jobs ADD COLUMN created_by TEXT;");
  sqlite.exec(`INSERT INTO edm_users(id,name,email,created_at,updated_at) VALUES ('u','Test','u@example.com',0,0),('other','Other','other@example.com',0,0);
  INSERT INTO edm_providers(id,user_id,provider,name,api_key,config,is_default,created_at,updated_at) VALUES ('p','u','resend','Test','unused','{}',1,0,0);
  INSERT INTO edm_contacts(id,user_id,email,created_at,updated_at) VALUES ('contact','u','customer@example.com',0,0);
@@ -133,7 +134,7 @@ test('verified domain chooses its Resend account ahead of a different default ac
 });
 test('campaign submission selects the verified Resend account and blocks removed domains before queueing',async()=>{
  const {campaignRoutes}=await import('../../src/outreach/server/routes/campaign.routes');
- const h=new Hono<any>();h.use('*',async(c,next)=>{c.set('user',{id:'u',role:'admin'});await next()});h.route('/campaigns',campaignRoutes);
+ const h=new Hono<any>();h.use('*',async(c,next)=>{c.set('user',{id:'u',role:'admin',teamRead:true});await next()});h.route('/campaigns',campaignRoutes);
  sqlite.exec(`INSERT INTO edm_templates(id,user_id,name,subject,body_html,created_at,updated_at) VALUES ('t','u','Template','Hello','<p>Hello</p>',0,0);
  UPDATE edm_campaigns SET status='draft',template_id='t',sender_email='re@acfilter.net';
  INSERT INTO edm_providers(id,user_id,provider,name,api_key,config,is_default,created_at,updated_at) VALUES ('m','u','mailchimp','Mailchimp','unused','{}',1,0,0);`);
@@ -187,7 +188,7 @@ test('sync limit cooldown does not discard a record; expired lease can be recove
 
 test('send preflight refuses dispatch when tracking configuration cannot be connected',async()=>{
  const {campaignRoutes}=await import('../../src/outreach/server/routes/campaign.routes');
- const h=new Hono<any>();h.use('*',async(c,next)=>{c.set('user',{id:'u',role:'admin'});await next()});h.route('/campaigns',campaignRoutes);
+ const h=new Hono<any>();h.use('*',async(c,next)=>{c.set('user',{id:'u',role:'admin',teamRead:true});await next()});h.route('/campaigns',campaignRoutes);
  sqlite.exec("INSERT INTO edm_templates(id,user_id,name,subject,body_html,created_at,updated_at) VALUES ('t','u','Template','Hello','<p>Hello</p>',0,0); UPDATE edm_campaigns SET status='draft',template_id='t'");
  vi.stubGlobal('fetch',vi.fn(async(url:any)=>String(url).includes('/domains')?Response.json({data:[{name:'example.com',status:'verified'}]}):Response.json({message:'forbidden'},{status:403})));
  env.EMAIL_QUEUE={sendBatch:vi.fn()};
