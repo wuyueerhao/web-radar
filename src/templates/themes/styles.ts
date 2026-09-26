@@ -2003,257 +2003,27 @@ body[data-template="single-wellness-nordic"] {
   }
 }
 
-@media (max-width: 767px) {
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) [style*="grid-template-columns"] {
+/* Shared responsive layout for the single-product editorial sections. */
+.wr-single-content-grid > *,
+.wr-single-thumbnails > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.wr-single-table-scroll {
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+}
+.wr-single-table-scroll table {
+  min-width: 640px;
+}
+@media (max-width: 768px) {
+  .wr-single-content-grid {
     grid-template-columns: minmax(0, 1fr) !important;
     gap: 24px !important;
   }
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) [style*="grid-template-columns"] > * {
-    min-width: 0;
-    grid-column: 1 / -1 !important;
-    grid-row: auto !important;
-    overflow-wrap: anywhere;
-  }
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) header > div,
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) header nav {
-    flex-wrap: wrap !important;
-    gap: 16px !important;
-    min-width: 0;
-    max-width: 100%;
-  }
-}
-
-@keyframes wrPulseAura {
-  0% { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.6); }
-  70% { box-shadow: 0 0 0 14px rgba(125, 211, 252, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0); }
-}
-.senseng-video-toggle {
-  animation: wrPulseAura 3s infinite;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
-}
-.senseng-video-toggle:hover {
-  transform: scale(1.12);
-}
-
-.wr-candy-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 45px rgba(255, 107, 139, 0.22) !important;
-  border-color: #ffccd5 !important;
-}
-.wr-candy-card img {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.wr-candy-card:hover img {
-  transform: scale(1.07);
-}
-
-.wr-wonder-card:hover {
-  transform: translateY(-8px) scale(1.015);
-  box-shadow: 0 20px 45px rgba(38, 70, 83, 0.12) !important;
-  border-color: #2a9d8f !important;
-}
-.wr-wonder-card img {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.wr-wonder-card:hover img {
-  transform: scale(1.06);
-}
-
-.wr-arcade-card:hover {
-  transform: translateY(-8px) scale(1.015);
-  border-color: #00f5d4 !important;
-  box-shadow: 0 0 32px rgba(0, 245, 212, 0.4) !important;
-}
-.wr-arcade-card img {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.wr-arcade-card:hover img {
-  transform: scale(1.07);
-}
-
-.wr-nature-card:hover {
-  transform: translateY(-8px) scale(1.015);
-  box-shadow: 0 20px 45px rgba(45, 74, 34, 0.16) !important;
-  border-color: #4a7c59 !important;
-}
-.wr-nature-card img {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.wr-nature-card:hover img {
-  transform: scale(1.06);
-}
-
-.wr-minimal-card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
-  border-color: #111827 !important;
-}
-.wr-minimal-card img {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.wr-minimal-card:hover img {
-  transform: scale(1.05);
-}
-
-.wr-card-hover {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.wr-card-hover:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-}
-
-/* ------------------------------------------------------------- */
-/* B2B LIGHT-THEMED FLAGSHIP TEMPLATES                           */
-/* ------------------------------------------------------------- */
-body[data-template="luggage-leather-banner"] {
-  background: #fdfcf9;
-  color: #1f1610;
-}
-body[data-template="luggage-voyage-video"] {
-  background: #f5f8fc;
-  color: #0f172a;
-}
-body[data-template="jewelry-luxury-banner"] {
-  background: #faf8f5;
-  color: #1c1417;
-}
-body[data-template="jewelry-timeless-video"] {
-  background: #f8fafc;
-  color: #0b192c;
-}
-body[data-template="homedecor-aesthetic-banner"] {
-  background: #fbf9f5;
-  color: #292524;
-}
-body[data-template="homedecor-living-video"] {
-  background: #f9fafb;
-  color: #111827;
-}
-body[data-template="furniture-minimal-banner"] {
-  background: #ffffff;
-  color: #18181b;
-}
-body[data-template="furniture-spatial-video"] {
-  background: #f8fafc;
-  color: #0f172a;
-}
-body[data-template="kitchen-culinary-banner"] {
-  background: #f8fafc;
-  color: #0f172a;
-}
-body[data-template="kitchen-gourmet-video"] {
-  background: #fffbeb;
-  color: #271b12;
-}
-body[data-template="drinkware-ceramic-banner"] {
-  background: #fdfbf7;
-  color: #1c1917;
-}
-body[data-template="drinkware-thermal-video"] {
-  background: #f0f9ff;
-  color: #0f172a;
-}
-body[data-template="beauty-skincare-banner"] {
-  background: #fffafb;
-  color: #1c1917;
-}
-body[data-template="beauty-glow-video"] {
-  background: #faf8ff;
-  color: #1e1b4b;
-}
-body[data-template="electronics-gadget-banner"] {
-  background: #f8fafc;
-  color: #0f172a;
-}
-body[data-template="electronics-smart-video"] {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-body[data-template="tools-precision-banner"] {
-  background: #f4f4f6;
-  color: #0f172a;
-}
-body[data-template="tools-workshop-video"] {
-  background: #f5f5f4;
-  color: #1c1917;
-}
-body[data-template="sports-trail-banner"] {
-  background: #f6f8f5;
-  color: #14532d;
-}
-body[data-template="sports-kinetic-video"] {
-  background: #f8fafc;
-  color: #0f172a;
-}
-/* Pet Supplies — warm coral/sand palette */
-body[data-template="pet-supplies-banner"] {
-  background: #fef7f4;
-  color: #3b1f0e;
-}
-body[data-template="pet-wellness-video"] {
-  background: #f0fdfa;
-  color: #134e4a;
-}
-/* Stationery & Office — sage/cream palette */
-body[data-template="stationery-craft-banner"] {
-  background: #f8faf6;
-  color: #1a2e1a;
-}
-body[data-template="stationery-studio-video"] {
-  background: #f5f7fa;
-  color: #1e3a5f;
-}
-/* Posters, Stickers & Prints — pop/gallery palette */
-body[data-template="poster-graphic-banner"] {
-  background: #fefbff;
-  color: #2d1040;
-}
-body[data-template="poster-gallery-video"] {
-  background: #fffaf5;
-  color: #3b1a0a;
-}
-/* Food & Packaging — terracotta/olive palette */
-body[data-template="food-artisan-banner"] {
-  background: #fdf8f3;
-  color: #3b2712;
-}
-body[data-template="food-harvest-video"] {
-  background: #fafbf5;
-  color: #2a3517;
-}
-
-/* Single Product Showcase Templates */
-body[data-template="single-device-showcase"] {
-  background: #f8fafc;
-  color: #0f172a;
-}
-body[data-template="single-artisan-craft"] {
-  background: #fdfbf7;
-  color: #1e1915;
-}
-body[data-template="single-wellness-nordic"] {
-  background: #f8faf7;
-  color: #1e2d21;
-}
-@media (max-width: 767px) {
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) [style*="grid-template-columns"] {
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 24px !important;
-  }
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) [style*="grid-template-columns"] > * {
-    min-width: 0;
-    grid-column: 1 / -1 !important;
-    grid-row: auto !important;
-    overflow-wrap: anywhere;
-  }
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) header > div,
-  body:is(.single-device-showcase,.single-artisan-craft,.single-wellness-nordic) header nav {
-    flex-wrap: wrap !important;
-    gap: 16px !important;
-    min-width: 0;
-    max-width: 100%;
+  .wr-single-thumbnails {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
   }
 }
 
