@@ -1,269 +1,332 @@
 {
   "apparel-fabric-banner": {
-    "url": "/templates/previews/apparel-fabric-banner.8fd260ee00150c4a.jpg",
-    "sha256": "8fd260ee00150c4ad090c2b761f3bc5f75ac4d42035da47710f164f6cebf2ac9",
+    "url": "/templates/previews/apparel-fabric-banner.842266ad4196cb2f.jpg",
+    "sha256": "842266ad4196cb2fdfc95e71473c17be24d5b7bd6f8b139266b8a6e2d6263c8f",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.apparel-fabric-banner-materials.6"
   },
   "apparel-runway-video": {
-    "url": "/templates/previews/apparel-runway-video.8fd260ee00150c4a.jpg",
-    "sha256": "8fd260ee00150c4ad090c2b761f3bc5f75ac4d42035da47710f164f6cebf2ac9",
+    "url": "/templates/previews/apparel-runway-video.842266ad4196cb2f.jpg",
+    "sha256": "842266ad4196cb2fdfc95e71473c17be24d5b7bd6f8b139266b8a6e2d6263c8f",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.apparel-runway-video-materials.6"
   },
   "beauty-glow-video": {
-    "url": "/templates/previews/beauty-glow-video.936d7390c037df65.jpg",
-    "sha256": "936d7390c037df65569bc3c0e2a2ecf4e32ccf8519e031e68b0f3c48dcbb5e05",
+    "url": "/templates/previews/beauty-glow-video.d99618ec3f0a1568.jpg",
+    "sha256": "d99618ec3f0a15686f147a24d5bba297d77f21f489a7639559207cf4c870ca1c",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.beauty-glow-video-materials.6"
   },
   "beauty-skincare-banner": {
-    "url": "/templates/previews/beauty-skincare-banner.dfcad6214147f825.jpg",
-    "sha256": "dfcad6214147f825f8533780f2d623136f016a4dc1c64e9cadc8dd6da3c5905f",
+    "url": "/templates/previews/beauty-skincare-banner.0e5ae88f783841c4.jpg",
+    "sha256": "0e5ae88f783841c43a88c1092b36ea987751dd775f0c0ddb3110c75d3161c68f",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.beauty-skincare-banner-materials.6"
   },
   "corpox-ai-agency": {
-    "url": "/templates/previews/corpox-ai-agency.1cd6dc2fc58369a3.jpg",
-    "sha256": "1cd6dc2fc58369a3899d8e5afb97b4b94de79066d41148c1118b71779c86f9ae",
+    "url": "/templates/previews/corpox-ai-agency.c6480e46c148b73c.jpg",
+    "sha256": "c6480e46c148b73c69b223cf2a66180220534358180e3c48d33653391e1d668b",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.corpox-ai-agency-materials.6"
   },
   "drinkware-ceramic-banner": {
-    "url": "/templates/previews/drinkware-ceramic-banner.25bad5889283bac0.jpg",
-    "sha256": "25bad5889283bac04a08c275456938b707c83f39a20d2d2261cbf32de780c05b",
+    "url": "/templates/previews/drinkware-ceramic-banner.90bd661c5cfcdaac.jpg",
+    "sha256": "90bd661c5cfcdaac17974ded67f4378c4d35fd6cfc8d5a1e0ebd28c73da9adb8",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.drinkware-ceramic-banner-materials.6"
   },
   "drinkware-thermal-video": {
-    "url": "/templates/previews/drinkware-thermal-video.d655388459d1bf0f.jpg",
-    "sha256": "d655388459d1bf0f8da0a59993a28f4c52bec42fee1524d67e27ada5fcebcbdd",
+    "url": "/templates/previews/drinkware-thermal-video.46c5d2cf5644bc65.jpg",
+    "sha256": "46c5d2cf5644bc654c5d877e2a9f892bc9f398aab852e55f05416db947b63bf8",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.drinkware-thermal-video-materials.6"
   },
   "electronics-gadget-banner": {
-    "url": "/templates/previews/electronics-gadget-banner.d35e08787b97a16a.jpg",
-    "sha256": "d35e08787b97a16affb3a5f12dbb704aec646e3a43401565933c524c95d61952",
+    "url": "/templates/previews/electronics-gadget-banner.89e129f5f491df1c.jpg",
+    "sha256": "89e129f5f491df1cce24be02f318039e72dc7d82a4999f9c7c2d6f25943cc6b6",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.electronics-gadget-banner-materials.6"
   },
   "electronics-smart-video": {
-    "url": "/templates/previews/electronics-smart-video.e7a5adac6c64ac9e.jpg",
-    "sha256": "e7a5adac6c64ac9ed7cadfc4a189e0f97b0f6f9a076672f17d01a780c1bd2ea9",
+    "url": "/templates/previews/electronics-smart-video.055fdc7329f65609.jpg",
+    "sha256": "055fdc7329f65609f52a82dc5fa54fd0b58f50699876ee8925223ab3874ed637",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.electronics-smart-video-materials.6"
   },
-  "food-artisan-banner": {
-    "url": "/templates/previews/food-artisan-banner.ed62baa11bc2dbbf.jpg",
-    "sha256": "ed62baa11bc2dbbfeb95ee3e82d4e24f5862e2bb1dc81e144fc202b7c2c1440e",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.food-artisan-banner-materials.6"
-  },
-  "food-harvest-video": {
-    "url": "/templates/previews/food-harvest-video.d217b793ee6934b7.jpg",
-    "sha256": "d217b793ee6934b7764b3e1785c8e53a4e90af4df90c2ebe75d2dfb65abac1ef",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.food-harvest-video-materials.6"
-  },
   "footwear-craft-banner": {
-    "url": "/templates/previews/footwear-craft-banner.d05618e0b61b9898.jpg",
-    "sha256": "d05618e0b61b9898c746db3f5baecb0aaf7302afdb9af172614ef34f8c3195dd",
+    "url": "/templates/previews/footwear-craft-banner.c9594ead3d0d9bfd.jpg",
+    "sha256": "c9594ead3d0d9bfdc0a28a1f630da68145080cc0e12151d2aa31b2dd0871e535",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.footwear-craft-banner-materials.6"
   },
   "footwear-kinetic-video": {
-    "url": "/templates/previews/footwear-kinetic-video.d05618e0b61b9898.jpg",
-    "sha256": "d05618e0b61b9898c746db3f5baecb0aaf7302afdb9af172614ef34f8c3195dd",
+    "url": "/templates/previews/footwear-kinetic-video.c9594ead3d0d9bfd.jpg",
+    "sha256": "c9594ead3d0d9bfdc0a28a1f630da68145080cc0e12151d2aa31b2dd0871e535",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.footwear-kinetic-video-materials.6"
   },
   "furniture-minimal-banner": {
-    "url": "/templates/previews/furniture-minimal-banner.1f453e950f7bdbec.jpg",
-    "sha256": "1f453e950f7bdbecd8b18fb88e1c6706a897bf1d8bcaeb055844b5a84f1b7d19",
+    "url": "/templates/previews/furniture-minimal-banner.9350f2fc671cdcd4.jpg",
+    "sha256": "9350f2fc671cdcd4927dffa58616edb58e0e89040f4cd49fa279b8b20034dda9",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.furniture-minimal-banner-materials.6"
   },
   "furniture-spatial-video": {
-    "url": "/templates/previews/furniture-spatial-video.e85fbfce7bd0181c.jpg",
-    "sha256": "e85fbfce7bd0181cd8075a58e96e24b53c65419493bc1f687d3c7aec7edf8f8b",
+    "url": "/templates/previews/furniture-spatial-video.61b974cd543c08cc.jpg",
+    "sha256": "61b974cd543c08ccc14848fd3726f0a83abb862f8805eb0165129a25d7ca3ac7",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.furniture-spatial-video-materials.6"
   },
   "homedecor-aesthetic-banner": {
-    "url": "/templates/previews/homedecor-aesthetic-banner.3e6aeab67b1c0f4b.jpg",
-    "sha256": "3e6aeab67b1c0f4ba33483495601158013bd9a926027301c8b22ed18016fe9cd",
+    "url": "/templates/previews/homedecor-aesthetic-banner.e98f346285267e8f.jpg",
+    "sha256": "e98f346285267e8f2a440385687523eede59da23882a278acb271f10c157b9e8",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.homedecor-aesthetic-banner-materials.6"
   },
   "homedecor-living-video": {
-    "url": "/templates/previews/homedecor-living-video.bc097cf645765ddc.jpg",
-    "sha256": "bc097cf645765ddcca8e18fbdc1f5563b6e7be9fa3d219bec438872351ef6910",
+    "url": "/templates/previews/homedecor-living-video.cd3d7ac8b4ec4c2f.jpg",
+    "sha256": "cd3d7ac8b4ec4c2f2649de2b9041f861fb2a34d58cad226986c4affa13a5ff95",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.homedecor-living-video-materials.6"
   },
   "jewelry-luxury-banner": {
-    "url": "/templates/previews/jewelry-luxury-banner.cb576a2cefc5fe57.jpg",
-    "sha256": "cb576a2cefc5fe571eccdef39565d3a135e00cfa9f133316c58b7d20f16ceb20",
+    "url": "/templates/previews/jewelry-luxury-banner.78a491d01f7a4b06.jpg",
+    "sha256": "78a491d01f7a4b06271c6d808ac508d1640cfac7b8850dbe70f86ab0c785aaa0",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.jewelry-luxury-banner-materials.6"
   },
   "jewelry-timeless-video": {
-    "url": "/templates/previews/jewelry-timeless-video.54b7c7c6a5f5432e.jpg",
-    "sha256": "54b7c7c6a5f5432eb062cf166f57e82f0c0082fb9d5c410994ba89a91580fb96",
+    "url": "/templates/previews/jewelry-timeless-video.02aaf6489446da15.jpg",
+    "sha256": "02aaf6489446da156496f45ff66c145c117f90e1ef10ea1cd07dd8ba26687a4f",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.jewelry-timeless-video-materials.6"
   },
   "kitchen-culinary-banner": {
-    "url": "/templates/previews/kitchen-culinary-banner.2dcf664963a7cbbc.jpg",
-    "sha256": "2dcf664963a7cbbcb1055c2121e4f30e8e772519e13965ab84707a36a6a1ba9e",
+    "url": "/templates/previews/kitchen-culinary-banner.cefe38ba7ded10a0.jpg",
+    "sha256": "cefe38ba7ded10a033691278e3ea3ab280282d0a44b758d1447770ba3eeca3a8",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.kitchen-culinary-banner-materials.6"
   },
   "kitchen-gourmet-video": {
-    "url": "/templates/previews/kitchen-gourmet-video.cf564642b62d26e7.jpg",
-    "sha256": "cf564642b62d26e70a45d9711563599ed725d6f053242cb6c40c0274cbdf34aa",
+    "url": "/templates/previews/kitchen-gourmet-video.fc521d238091e476.jpg",
+    "sha256": "fc521d238091e4763dac90febbf96b0731916c651d28d8d714cf6c35aa9d4ce1",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.kitchen-gourmet-video-materials.6"
   },
   "luggage-leather-banner": {
-    "url": "/templates/previews/luggage-leather-banner.6182cba8969f5c80.jpg",
-    "sha256": "6182cba8969f5c80c8025fb36396e52343774b2b19f47676e95730986aa47814",
+    "url": "/templates/previews/luggage-leather-banner.df7279d6235b091a.jpg",
+    "sha256": "df7279d6235b091a0e9bc59e47d0e82fcd914f8b0af1fcb9c9bece9fc0e6d13f",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.luggage-leather-banner-materials.6"
   },
   "luggage-voyage-video": {
-    "url": "/templates/previews/luggage-voyage-video.e7c00f06c24720a4.jpg",
-    "sha256": "e7c00f06c24720a4549467e9ac68e13b67bcfae5de395029c0cd99084965c419",
+    "url": "/templates/previews/luggage-voyage-video.56022185b665fa33.jpg",
+    "sha256": "56022185b665fa3365d8c00205d91721f7c25b62abb764e9ec16f1aef6121454",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.luggage-voyage-video-materials.6"
   },
-  "pet-supplies-banner": {
-    "url": "/templates/previews/pet-supplies-banner.af53bb00b8641a70.jpg",
-    "sha256": "af53bb00b8641a70dee55599f48f7abd8ffb5083dd11b2b1928605471ccb9680",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.pet-supplies-banner-materials.6"
-  },
-  "pet-wellness-video": {
-    "url": "/templates/previews/pet-wellness-video.ae463af90295aa5d.jpg",
-    "sha256": "ae463af90295aa5da68796c6028e83185c846517b6dfe87c4c5ca1286f02256e",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.pet-wellness-video-materials.6"
-  },
   "plush-cushion-banner": {
-    "url": "/templates/previews/plush-cushion-banner.900d757c2936e1c1.jpg",
-    "sha256": "900d757c2936e1c19f925af66bd10acd8792db49448b8f36bf8722a09a389996",
+    "url": "/templates/previews/plush-cushion-banner.f85861762c5c9d1f.jpg",
+    "sha256": "f85861762c5c9d1f2e45e0655d0712d84ac22bd705851cec17a5487a87738a15",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.plush-cushion-banner-materials.6"
   },
   "plush-living-video": {
-    "url": "/templates/previews/plush-living-video.900d757c2936e1c1.jpg",
-    "sha256": "900d757c2936e1c19f925af66bd10acd8792db49448b8f36bf8722a09a389996",
+    "url": "/templates/previews/plush-living-video.f85861762c5c9d1f.jpg",
+    "sha256": "f85861762c5c9d1f2e45e0655d0712d84ac22bd705851cec17a5487a87738a15",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.plush-living-video-materials.6"
   },
-  "poster-gallery-video": {
-    "url": "/templates/previews/poster-gallery-video.371e21bc7ac16157.jpg",
-    "sha256": "371e21bc7ac16157d4caa461a62548e1288fb4dc408e9e2adcd55b5a3d61a597",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.poster-gallery-video-materials.6"
-  },
-  "poster-graphic-banner": {
-    "url": "/templates/previews/poster-graphic-banner.f70edb3e3d067cec.jpg",
-    "sha256": "f70edb3e3d067cec34a41e1d72ae0977febb2b54a08f17c938a788bf5ca934a1",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.poster-graphic-banner-materials.6"
-  },
   "saas-automation": {
-    "url": "/templates/previews/saas-automation.5515fc79f75f0729.jpg",
-    "sha256": "5515fc79f75f0729967f433d74c084558bc97f6906aeb1555a97bb6edd2f8af5",
+    "url": "/templates/previews/saas-automation.b11c4cf373a17958.jpg",
+    "sha256": "b11c4cf373a1795850f21153068a2e57c77899cdd1c4c49cb0580a2e45810af6",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.saas-automation-materials.6"
   },
   "senseng-arcade": {
-    "url": "/templates/previews/senseng-arcade.f31477bededd7835.jpg",
-    "sha256": "f31477bededd78352e69376792b0efd67d49c274c31c076327e8ce9206c9605c",
+    "url": "/templates/previews/senseng-arcade.cb7f23bfcc379157.jpg",
+    "sha256": "cb7f23bfcc379157c5ccc132580e1dd1df2600639f82f9b82905000967d69fe0",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.senseng-arcade-materials.6"
   },
   "senseng-candy": {
-    "url": "/templates/previews/senseng-candy.3010e53e810e182a.jpg",
-    "sha256": "3010e53e810e182ad08ad2099f7f0402284e3a2bd2ff6b07c91241c374541444",
+    "url": "/templates/previews/senseng-candy.3774aabd2a95b67f.jpg",
+    "sha256": "3774aabd2a95b67ffa0f0d34cb3f496c09c2d44394b2212dbe790fa3fd981fc8",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.senseng-candy-materials.6"
   },
   "senseng-clean": {
-    "url": "/templates/previews/senseng-clean.d86d69d4b0bc5f3d.jpg",
-    "sha256": "d86d69d4b0bc5f3d8be0d38fdda05d47084ca6e6fada6739452c2c2300d6aefc",
+    "url": "/templates/previews/senseng-clean.ce1856e0ae4ae109.jpg",
+    "sha256": "ce1856e0ae4ae10933b67bbbb3425f56a818a78034916436b944903000b6012b",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.senseng-clean-materials.6"
   },
   "senseng-minimal": {
-    "url": "/templates/previews/senseng-minimal.f5f5a7e533ed935e.jpg",
-    "sha256": "f5f5a7e533ed935e117db1dbcc35462532d7b66e9110fe1a2a4602f4d120d57f",
+    "url": "/templates/previews/senseng-minimal.bca04c59bfe8df77.jpg",
+    "sha256": "bca04c59bfe8df77f5cf5762948dacf301776cf8a7d15b6f2e39504252424e19",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.senseng-minimal-materials.6"
   },
   "senseng-nature": {
-    "url": "/templates/previews/senseng-nature.3327ac2caaf01fe9.jpg",
-    "sha256": "3327ac2caaf01fe9c0abb6ee2f187679da92bebf2de5fadf25b56628828e27f5",
+    "url": "/templates/previews/senseng-nature.98371d98c6a7c6a9.jpg",
+    "sha256": "98371d98c6a7c6a9721f5aa6dad43b7d9fbc8e9294d92dafcae5bc339d4c97dd",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.senseng-nature-materials.6"
   },
   "senseng-video": {
-    "url": "/templates/previews/senseng-video.d86d69d4b0bc5f3d.jpg",
-    "sha256": "d86d69d4b0bc5f3d8be0d38fdda05d47084ca6e6fada6739452c2c2300d6aefc",
+    "url": "/templates/previews/senseng-video.ce1856e0ae4ae109.jpg",
+    "sha256": "ce1856e0ae4ae10933b67bbbb3425f56a818a78034916436b944903000b6012b",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.senseng-video-materials.6"
   },
   "senseng-wonder": {
-    "url": "/templates/previews/senseng-wonder.45a70f9af89ead48.jpg",
-    "sha256": "45a70f9af89ead483da03d2578960bc595fedae49f15d37c4ae519b14bb1e164",
+    "url": "/templates/previews/senseng-wonder.e262b584d83093ba.jpg",
+    "sha256": "e262b584d83093ba0a415999255012646d95e913d89e66558254a4b22f5a671b",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.senseng-wonder-materials.6"
   },
-  "single-artisan-craft": {
-    "url": "/templates/previews/single-artisan-craft.cfd2241d68d14f55.jpg",
-    "sha256": "cfd2241d68d14f55a5e32eba283f881815409c541e8a6e4a7f477eb93f6b6133",
+  "sports-kinetic-video": {
+    "url": "/templates/previews/sports-kinetic-video.4be71783397247ea.jpg",
+    "sha256": "4be71783397247ea0ade896dd50a9ff7fe2a9134b06b419fcb24d37170625f61",
     "width": 1440,
     "height": 1000,
-    "contractRevision": "2026-09-23.single-artisan-craft-materials.6"
+    "contractRevision": "2026-09-23.sports-kinetic-video-materials.6"
+  },
+  "sports-trail-banner": {
+    "url": "/templates/previews/sports-trail-banner.b10dc9d2b675f27a.jpg",
+    "sha256": "b10dc9d2b675f27a898a44acecd7c4cf1db363dd96c1530cca96149f38bdc569",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.sports-trail-banner-materials.6"
+  },
+  "tools-precision-banner": {
+    "url": "/templates/previews/tools-precision-banner.64d3198f0fef59c2.jpg",
+    "sha256": "64d3198f0fef59c20d80cf006db14c3a3733cdb11e44078f93f0322bd85110b9",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.tools-precision-banner-materials.6"
+  },
+  "tools-workshop-video": {
+    "url": "/templates/previews/tools-workshop-video.40101ef894d72f3a.jpg",
+    "sha256": "40101ef894d72f3a25f1c05c84441b44a5ac9ebda6db047b52df141aff120237",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.tools-workshop-video-materials.6"
+  },
+  "toys-figure-banner": {
+    "url": "/templates/previews/toys-figure-banner.8575a93adc76af88.jpg",
+    "sha256": "8575a93adc76af88761e50b6c2055e8b25240af38af9cac968a0017b16ebcd9f",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.toys-figure-banner-materials.6"
+  },
+  "toys-interactive-video": {
+    "url": "/templates/previews/toys-interactive-video.8575a93adc76af88.jpg",
+    "sha256": "8575a93adc76af88761e50b6c2055e8b25240af38af9cac968a0017b16ebcd9f",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.toys-interactive-video-materials.6"
+  },
+  "universal-showcase-video": {
+    "url": "/templates/previews/universal-showcase-video.988178a732d41f98.jpg",
+    "sha256": "988178a732d41f981df618f98693a3f849ceab1113400734eb7227bfcd5dc51c",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.universal-showcase-video-materials.6"
+  },
+  "universal-trade-banner": {
+    "url": "/templates/previews/universal-trade-banner.988178a732d41f98.jpg",
+    "sha256": "988178a732d41f981df618f98693a3f849ceab1113400734eb7227bfcd5dc51c",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.universal-trade-banner-materials.6"
+  },
+  "food-artisan-banner": {
+    "url": "/templates/previews/food-artisan-banner.aa06716cc401d85b.jpg",
+    "sha256": "aa06716cc401d85b6b10f0ad1b1f298bb8637efeb3edfd99f1b3999858476a3c",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.food-artisan-banner-materials.6"
+  },
+  "food-harvest-video": {
+    "url": "/templates/previews/food-harvest-video.6d65f800f9fcc453.jpg",
+    "sha256": "6d65f800f9fcc453d45f1ee0882fb85859d07c517aef3f9feebd1aebc86133d3",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.food-harvest-video-materials.6"
+  },
+  "pet-supplies-banner": {
+    "url": "/templates/previews/pet-supplies-banner.0eabd2a4f84cdade.jpg",
+    "sha256": "0eabd2a4f84cdade063f1bd0adec5d7ba3d1940bcfed20f9eaf830a921e3c9a7",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.pet-supplies-banner-materials.6"
+  },
+  "pet-wellness-video": {
+    "url": "/templates/previews/pet-wellness-video.ef86253248b05e1b.jpg",
+    "sha256": "ef86253248b05e1ba5ccdec2f9fbd721f92fbec04cb98cbf58992353d63de8fe",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.pet-wellness-video-materials.6"
+  },
+  "poster-gallery-video": {
+    "url": "/templates/previews/poster-gallery-video.429d29eb47fbc201.jpg",
+    "sha256": "429d29eb47fbc201373bccc07dfc6eda83bdad23ccd6bd4b7ad5001223dd55c6",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.poster-gallery-video-materials.6"
+  },
+  "poster-graphic-banner": {
+    "url": "/templates/previews/poster-graphic-banner.5ba7534913583775.jpg",
+    "sha256": "5ba753491358377511728f388094de09c40af01737c495216e1c3a4517e44ba1",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.poster-graphic-banner-materials.6"
+  },
+  "stationery-craft-banner": {
+    "url": "/templates/previews/stationery-craft-banner.b29762c28e3b22fd.jpg",
+    "sha256": "b29762c28e3b22fd100d0b178e09ae48ab81eaa7b352f842c486fc8f6886ea47",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.stationery-craft-banner-materials.6"
+  },
+  "stationery-studio-video": {
+    "url": "/templates/previews/stationery-studio-video.f88f3eb2eb09d231.jpg",
+    "sha256": "f88f3eb2eb09d2315ceff77bf82f86749511dfae7c64e3b2cfc766a703f06c35",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.stationery-studio-video-materials.6"
   },
   "single-device-showcase": {
     "url": "/templates/previews/single-device-showcase.b636c180e1d4dfcd.jpg",
@@ -272,81 +335,18 @@
     "height": 1000,
     "contractRevision": "2026-09-23.single-device-showcase-materials.6"
   },
+  "single-artisan-craft": {
+    "url": "/templates/previews/single-artisan-craft.cfd2241d68d14f55.jpg",
+    "sha256": "cfd2241d68d14f55a5e32eba283f881815409c541e8a6e4a7f477eb93f6b6133",
+    "width": 1440,
+    "height": 1000,
+    "contractRevision": "2026-09-23.single-artisan-craft-materials.6"
+  },
   "single-wellness-nordic": {
     "url": "/templates/previews/single-wellness-nordic.7034a49e9eccbc00.jpg",
     "sha256": "7034a49e9eccbc003b3e0433aabc45acbcd6f0088682a9240ee4c5388d58046b",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.single-wellness-nordic-materials.6"
-  },
-  "sports-kinetic-video": {
-    "url": "/templates/previews/sports-kinetic-video.181574037e5080ef.jpg",
-    "sha256": "181574037e5080ef1adec2700c9dd2132f5a5eb93d8f17cb9e1090d22b2ac74e",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.sports-kinetic-video-materials.6"
-  },
-  "sports-trail-banner": {
-    "url": "/templates/previews/sports-trail-banner.b5c46e7fbda57d38.jpg",
-    "sha256": "b5c46e7fbda57d38565b7de7f93ee787aa221bf4d2b7fab6ea4d5da17a7ce9ea",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.sports-trail-banner-materials.6"
-  },
-  "stationery-craft-banner": {
-    "url": "/templates/previews/stationery-craft-banner.3d6e51effc13af37.jpg",
-    "sha256": "3d6e51effc13af37c434b5dd4311208ec189ad154acb64fc98ba00780d311ac2",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.stationery-craft-banner-materials.6"
-  },
-  "stationery-studio-video": {
-    "url": "/templates/previews/stationery-studio-video.b6f6bbc08ec37772.jpg",
-    "sha256": "b6f6bbc08ec37772b494b28832dac4271899ef5ded70e4b1be107aac97661409",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.stationery-studio-video-materials.6"
-  },
-  "tools-precision-banner": {
-    "url": "/templates/previews/tools-precision-banner.8449fc587482b203.jpg",
-    "sha256": "8449fc587482b203595e9344d255c0e30ff066174a682afb91d87d2c12924d3f",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.tools-precision-banner-materials.6"
-  },
-  "tools-workshop-video": {
-    "url": "/templates/previews/tools-workshop-video.11a16258bb4b71d5.jpg",
-    "sha256": "11a16258bb4b71d58b334cdfd88bcddab3ee938d64bb97a1e3d7d90edbcd3ea1",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.tools-workshop-video-materials.6"
-  },
-  "toys-figure-banner": {
-    "url": "/templates/previews/toys-figure-banner.30eb7772f8410c61.jpg",
-    "sha256": "30eb7772f8410c61e4abee6d67dfdf69c95d94095b6a1f6344ef726d2857e302",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.toys-figure-banner-materials.6"
-  },
-  "toys-interactive-video": {
-    "url": "/templates/previews/toys-interactive-video.30eb7772f8410c61.jpg",
-    "sha256": "30eb7772f8410c61e4abee6d67dfdf69c95d94095b6a1f6344ef726d2857e302",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.toys-interactive-video-materials.6"
-  },
-  "universal-showcase-video": {
-    "url": "/templates/previews/universal-showcase-video.2866dd81833026b3.jpg",
-    "sha256": "2866dd81833026b33a66a0df178f01accdcd047254b8b6be8073a6b8d6859754",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.universal-showcase-video-materials.6"
-  },
-  "universal-trade-banner": {
-    "url": "/templates/previews/universal-trade-banner.2866dd81833026b3.jpg",
-    "sha256": "2866dd81833026b33a66a0df178f01accdcd047254b8b6be8073a6b8d6859754",
-    "width": 1440,
-    "height": 1000,
-    "contractRevision": "2026-09-23.universal-trade-banner-materials.6"
   }
 }
