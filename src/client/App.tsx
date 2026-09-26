@@ -1,3 +1,4 @@
+import { templateCoverUrl } from '../shared/template-covers';
 import type { Member } from './UserManagement';
 import { manageUsers, viewTeamData, writeBusiness } from '../shared/access';
 import { PendingWebsiteCreation } from './website-creation';
@@ -45,67 +46,7 @@ type Config = { testMode: boolean; services: ServiceStatus[]; parentOrigins?: st
 const embedded = window.location.pathname === '/embed/product-radar';
 const embedOrigin = parentOrigin(new URLSearchParams(window.location.search).get('parentOrigin'));
 
-const TEMPLATE_PREVIEWS: Record<string, string> = {
-  'senseng-clean': '/templates/previews/senseng-clean.jpg',
-  'senseng-video': '/templates/previews/senseng-video.jpg',
-  'saas-automation': '/templates/previews/saas-automation.jpg',
-  'fintech-platform': '/templates/previews/fintech-platform.jpg',
-  'digital-marketing': '/templates/previews/digital-marketing.jpg',
-  'porto-accounting': '/templates/previews/porto-accounting.jpg',
-  'crafto-corporate': '/templates/previews/crafto-corporate.jpg',
-  'juno-toys': '/templates/previews/juno-toys.jpg',
-  'corpox-ai-agency': '/templates/previews/corpox-ai-agency.jpg',
-  'corpox-consulting': '/templates/previews/corpox-consulting.jpg',
-  'senseng-candy': '/templates/previews/senseng-candy.jpg',
-  'senseng-wonder': '/templates/previews/senseng-wonder.jpg',
-  'senseng-arcade': '/templates/previews/senseng-arcade.jpg',
-  'senseng-nature': '/templates/previews/senseng-nature.jpg',
-  'senseng-minimal': '/templates/previews/senseng-minimal.jpg',
-  'universal-trade-banner': '/templates/previews/senseng-clean.jpg',
-  'universal-showcase-video': '/templates/previews/senseng-video.jpg',
-  'toys-figure-banner': '/templates/previews/senseng-arcade.jpg',
-  'toys-interactive-video': '/templates/previews/senseng-video.jpg',
-  'plush-cushion-banner': '/templates/previews/senseng-candy.jpg',
-  'plush-living-video': '/templates/previews/senseng-nature.jpg',
-  'apparel-fabric-banner': '/templates/previews/senseng-minimal.jpg',
-  'apparel-runway-video': '/templates/previews/senseng-video.jpg',
-  'footwear-craft-banner': '/templates/previews/senseng-arcade.jpg',
-  'footwear-kinetic-video': '/templates/previews/senseng-video.jpg',
-  'luggage-leather-banner': '/templates/previews/senseng-minimal.jpg',
-  'luggage-voyage-video': '/templates/previews/senseng-video.jpg',
-  'jewelry-luxury-banner': '/templates/previews/senseng-minimal.jpg',
-  'jewelry-timeless-video': '/templates/previews/senseng-video.jpg',
-  'homedecor-aesthetic-banner': '/templates/previews/senseng-nature.jpg',
-  'homedecor-living-video': '/templates/previews/senseng-video.jpg',
-  'furniture-minimal-banner': '/templates/previews/senseng-minimal.jpg',
-  'furniture-spatial-video': '/templates/previews/senseng-video.jpg',
-  'kitchen-culinary-banner': '/templates/previews/senseng-arcade.jpg',
-  'kitchen-gourmet-video': '/templates/previews/senseng-video.jpg',
-  'drinkware-ceramic-banner': '/templates/previews/senseng-arcade.jpg',
-  'drinkware-thermal-video': '/templates/previews/senseng-video.jpg',
-  'beauty-skincare-banner': '/templates/previews/senseng-arcade.jpg',
-  'beauty-glow-video': '/templates/previews/senseng-video.jpg',
-  'electronics-gadget-banner': '/templates/previews/senseng-arcade.jpg',
-  'electronics-smart-video': '/templates/previews/senseng-video.jpg',
-  'tools-precision-banner': '/templates/previews/senseng-arcade.jpg',
-  'tools-workshop-video': '/templates/previews/senseng-video.jpg',
-  'sports-trail-banner': '/templates/previews/senseng-arcade.jpg',
-  'sports-kinetic-video': '/templates/previews/senseng-video.jpg',
-  'pet-supplies-banner': '/templates/previews/senseng-candy.jpg',
-  'pet-wellness-video': '/templates/previews/senseng-video.jpg',
-  'stationery-craft-banner': '/templates/previews/senseng-nature.jpg',
-  'stationery-studio-video': '/templates/previews/senseng-video.jpg',
-  'poster-graphic-banner': '/templates/previews/senseng-wonder.jpg',
-  'poster-gallery-video': '/templates/previews/senseng-video.jpg',
-  'food-artisan-banner': '/templates/previews/senseng-arcade.jpg',
-  'food-harvest-video': '/templates/previews/senseng-video.jpg',
-  'single-device-showcase': '/templates/previews/single-device-showcase.4fba868003f28c65.jpg',
-  'single-artisan-craft': '/templates/previews/single-artisan-craft.42693c18b8094059.jpg',
-  'single-wellness-nordic': '/templates/previews/single-wellness-nordic.6edfcae862f23415.jpg',
-  natural: '/templates/previews/senseng-clean.jpg',
-  technology: '/templates/previews/saas-automation.jpg',
-  explorer: '/templates/previews/crafto-corporate.jpg',
-};
+
 
 export default function App() {
   const [config, setConfig] = useState<Config | null>(null),
@@ -925,20 +866,15 @@ function Projects({ onOpen, principal }: { onOpen: (id: string) => void; princip
                     </button>
                   </div>
 
-                  {project.coverAssetId ? (
-                    <AssetView projectId={project.id} assetId={project.coverAssetId} alt={project.name} />
-                  ) : TEMPLATE_PREVIEWS[project.template] ? (
-                    <img
-                      src={TEMPLATE_PREVIEWS[project.template]}
-                      alt={project.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <div className="project-cover-art">
-                      <div className="cover-orbit" />
-                      <span>{project.companyName || '尚未添加产品图片'}</span>
-                    </div>
-                  )}
+                  <AssetView
+                    key={`${project.id}:${project.coverAssetId || project.template}`}
+                    projectId={project.id}
+                    assetId={project.coverAssetId}
+                    alt={`${project.name} · 首页设计图`}
+                    variant="preview"
+                    lazy
+                    fallback={<img src={templateCoverUrl(project.template)} alt={`${project.name} · 模板首页`} loading="lazy" decoding="async" />}
+                  />
                   <span
                     className={`pill ${project.publishedReleaseId && !project.offline ? 'green' : 'light'}`}
                   >

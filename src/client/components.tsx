@@ -327,6 +327,7 @@ export function AssetView({
   variant = 'original',
   lazy = false,
   onOpen,
+  fallback,
 }: {
   projectId: string;
   assetId?: string;
@@ -337,6 +338,7 @@ export function AssetView({
   variant?: 'original' | 'preview';
   lazy?: boolean;
   onOpen?: () => void;
+  fallback?: ReactNode;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(!lazy);
@@ -386,15 +388,15 @@ export function AssetView({
   }, [projectId, assetId, variant, visible, lazy, attempt]);
   return (
     <div ref={container} className={`asset-view ${className}`}>
-      {url ? (
+      {fallback && (!assetId || error) ? fallback : url ? (
         video ? (
           <video src={url} controls playsInline preload="metadata" />
         ) : onOpen ? (
           <button type="button" className="asset-open" onClick={onOpen} aria-label={`放大${alt}`}>
-            <img src={url} alt={alt} />
+            <img src={url} alt={alt} onError={fallback ? ()=>setError('图片无法显示') : undefined} />
           </button>
         ) : (
-          <img src={url} alt={alt} />
+          <img src={url} alt={alt} onError={fallback ? ()=>setError('图片无法显示') : undefined} />
         )
       ) : (
         <span className="asset-placeholder">

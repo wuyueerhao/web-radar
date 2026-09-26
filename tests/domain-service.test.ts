@@ -2443,6 +2443,22 @@ describe('publication result consistency', () => {
 
 
 describe('bounded project queries', () => {
+  it('uses only homepage designs for project covers and lets templates use their own homepage', async () => {
+    const p=await create();
+    p.draft.banner={assetId:'banner',alt:'',mode:'background',fit:'cover',position:'center'};
+    p.draft.posterAssetId='video-poster';
+    p.draft.products=[{id:'product',name:'Product',imageAssetId:'product-image'}] as any;
+    p.draft.siteDesign={revision:1,pages:{home:{imageAssetId:'homepage'}}};
+    const cover=async()=>{await service.store.update('projects',p).run();return (await request('/api/projects')).data.projects.find((x:any)=>x.id===p.id).coverAssetId;};
+    p.draft.buildBranch='custom';expect(await cover()).toBe('homepage');
+    p.draft.buildBranch='template';expect(await cover()).toBeNull();
+    p.draft.buildBranch='clone';p.draft.cloneConfig={uiImages:[{id:'asset',assetId:'product-image',name:'product.png',role:'asset'},{id:'about',assetId:'about-page',name:'about.png',role:'about'},{id:'home',assetId:'clone-home',name:'index.png',role:'home'}]};
+    expect(await cover()).toBe('clone-home');
+    p.draft.cloneConfig.uiImages=p.draft.cloneConfig.uiImages!.filter(x=>x.role!=='home');expect(await cover()).toBeNull();
+    delete p.draft.buildBranch;delete p.draft.cloneConfig;expect(await cover()).toBe('homepage');
+    delete p.draft.siteDesign;expect(await cover()).toBeNull();
+  });
+
   it('sorts summaries newest first, paginates, searches and excludes another owner', async () => {
     for (let i=0;i<5;i++) {
       const p=await create(); p.name=`Catalog ${i}`; p.updatedAt=`2026-09-${10+i}T00:00:00.000Z`;

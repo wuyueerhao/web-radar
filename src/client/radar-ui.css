@@ -2418,3 +2418,6 @@ textarea::placeholder {
 .user-management td code { color:var(--ink); font-size:12px; overflow-wrap:anywhere; }
 .user-management .management-tabs .button.primary { background:#eeedff; color:#514ae6; border-color:#625bf6; }
 .user-management table { min-width:980px; }
+
+/* Card covers show the top of a homepage, including its navigation and hero. */
+.project-cover .asset-view img { width:100%; height:100%; object-fit:cover; object-position:top center; }
