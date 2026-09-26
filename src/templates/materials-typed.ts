@@ -357,7 +357,16 @@ export function renderTypedMaterialsSite(draft:Draft,options:RenderOptions):stri
     const plan=inv.media[page][target];if(!plan)return;
     const bindings=m.imageBindings.filter(b=>b.slotId===plan.slotId);
     const productId=plan.group?draft.products[plan.index]?.id:undefined;
-    const b=plan.group?bindings.find(b=>b.productId===productId):bindings[0];
+    let b=plan.group?bindings.find(b=>b.productId===productId):bindings[0];
+    // A saved hero for another product must not survive a primary-product switch.
+    if(draft.template.startsWith('single-')&&plan.slotId.startsWith('hero-slide-')){
+      const primary=draft.primaryProductId||draft.products[0]?.id;
+      const depictsPrimary=b&&(b.depictedProductIds?.length===1?b.depictedProductIds[0]===primary:b.productId===primary);
+      if(!depictsPrimary){
+        const main=m.imageBindings.find(item=>item.slotId==='product-main'&&item.productId===primary);
+        b=main?{...main,slotId:plan.slotId,role:'scene',depictedProductIds:primary?[primary]:[]}:undefined;
+      }
+    }
     if(!b){remove(cardContainer(node,parents));return;}
     bindIdentity(node,parents,draft,b,options);bindImage(node,b,options,kind);
   },preferExplicitHero);
@@ -370,7 +379,7 @@ export function renderTypedMaterialsSite(draft:Draft,options:RenderOptions):stri
   }
   // Static demo videos do not represent the selected collection. Keep the video
   // container for layout but use the confirmed collection poster only.
-  for(const node of elements(root))if(node.tagName==='video'){
+  for(const node of elements(root))if(node.tagName==='video'&&!node.attrs.some(a=>a.name==='data-sp-video')){
     const hero=m.imageBindings.find(b=>b.slotId==='hero-slide-0');if(hero){set(node,'poster',safeUrl(options.assetUrl(hero.assetId),options.preview));set(node,'data-wr-material-photo','');}
   }
   if(modernAbout)for(const node of elements(root)){

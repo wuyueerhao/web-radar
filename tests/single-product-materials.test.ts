@@ -42,6 +42,8 @@ describe('single-product confirmed layouts', () => {
         if (page === 'home') {
           const hero = all.find((n) => attr(n, 'data-sp-hero') !== undefined)!;
           expect(hero).toBeDefined();
+        const boundHero = all.find(n => attr(n, 'data-wr-material-image') === 'hero-slide-0')!;
+        expect(attr(boundHero, boundHero.tagName === 'video' ? 'poster' : 'src')).toContain('/bound/m1');
           expect(all.some((n) => attr(n, 'data-wr-collection-hero') !== undefined)).toBe(false);
           if (template === 'single-artisan-craft')
             expect(
