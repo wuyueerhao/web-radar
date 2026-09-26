@@ -329,22 +329,22 @@
     "contractRevision": "2026-09-23.stationery-studio-video-materials.6"
   },
   "single-device-showcase": {
-    "url": "/templates/previews/single-device-showcase.4fba868003f28c65.jpg",
-    "sha256": "4fba868003f28c65375d4d038f2632221c2e26269c8cb40e37613cf6a0167b4c",
+    "url": "/templates/previews/single-device-showcase.697237dfd3045a9e.jpg",
+    "sha256": "697237dfd3045a9e716e936eec6c406b4f55176f254238e82916d411e934f98f",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.single-device-showcase-materials.6"
   },
   "single-artisan-craft": {
-    "url": "/templates/previews/single-artisan-craft.42693c18b8094059.jpg",
-    "sha256": "42693c18b809405961da19e6d76f45432887ab20b259367412d67c66e9eb44f4",
+    "url": "/templates/previews/single-artisan-craft.3f2791c6dff7bd3c.jpg",
+    "sha256": "3f2791c6dff7bd3cd8686df9f322683945a7ef44c0f7146c172de3ea76fc2db1",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.single-artisan-craft-materials.6"
   },
   "single-wellness-nordic": {
-    "url": "/templates/previews/single-wellness-nordic.6edfcae862f23415.jpg",
-    "sha256": "6edfcae862f234156ba7013c251975a7d6ffd8822bb9817541255da6d4a4f67c",
+    "url": "/templates/previews/single-wellness-nordic.edc0e83ae3315a82.jpg",
+    "sha256": "edc0e83ae3315a821e0f648c73e456de743fd92bc9665d17129b8dcec6000313",
     "width": 1440,
     "height": 1000,
     "contractRevision": "2026-09-23.single-wellness-nordic-materials.6"

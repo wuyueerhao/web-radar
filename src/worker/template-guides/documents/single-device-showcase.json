@@ -7,13 +7,13 @@
   "purpose": "内部 AI 素材与文案规范。Standalone 独立建站字段说明与 Product Radar confirmed-materials 接入分别解释；后者必须读取 /api/internal/template-guides/materials/single-device-showcase 的 typed-regions-v1 新合同。规范接口只读，不负责生成、保存或发布客户网站。",
   "visualSystem": {
     "palette": [
-      "#00F0FF",
-      "#08090E",
-      "#0066FF",
-      "#141721"
+      "#0284C7",
+      "#F8FAFC",
+      "#2563EB",
+      "#0F172A"
     ],
-    "artDirection": "赛博暗黑极简未来机能，0.12ms超低延迟HUD全息声学遥测，五层纳米级结构横向解剖，流光倒影舞台。",
-    "composition": "深邃暗黑纯黑底色，首屏为悬浮五级钛金属声学终端与青蓝全息光环，居中为横纵交互Bento参数矩阵与声学腔体剖面。",
+    "artDirection": "纯净高光极简未来机能，0.12ms超低延迟HUD高精声学遥测，四层纳米级结构横向解剖，白昼流光展台。",
+    "composition": "纯净高光白阶底色，首屏为悬浮五级钛金属声学终端与青蓝全息光环，居中为横纵交互Bento参数矩阵与声学腔体剖面。",
     "tone": "大气、现代、全球化制造与出海供应链、极具视觉冲击力。",
     "avoid": [
       "不得将整张网页截图当作可编辑网站背景。",

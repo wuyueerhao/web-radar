@@ -607,14 +607,14 @@ export const TEMPLATES: TemplateDefinition[] = [
     id: 'single-device-showcase',
     name: '极客硬件展台 · 单品旗舰',
     englishName: 'Single Device Keynote & Hardware Stage',
-    tagline: '专为单款前沿科技硬件与声学数码发布设计；暗黑赛博舞台、0.12ms 遥测 HUD、Bento 参数矩阵与纵向腔体拆解',
+    tagline: '专为单款前沿科技硬件与声学数码发布设计；纯净极简未来展台、0.12ms 遥测 HUD、Bento 参数矩阵与纵向腔体拆解',
     category: 'single',
     industries: ['声学硬件', '智能穿戴', '极客数码', '单品旗舰发布', '高科技众筹'],
-    features: ['赛博暗黑极简未来机能', '0.12ms 遥测全息 HUD', 'Bento 模块化技术参数矩阵', '横纵多维结构剖面与全景展示'],
-    accentColor: '#00f0ff',
+    features: ['极简明亮未来机能展台', '0.12ms 遥测高精 HUD', 'Bento 模块化技术参数矩阵', '横纵多维结构剖面与全景展示'],
+    accentColor: '#0284c7',
     badge: '单产品发布 · 硬件旗舰',
     hasVideo: true,
-    previewImg: '/templates/previews/single-device-showcase.4fba868003f28c65.jpg',
+    previewImg: '/templates/previews/single-device-showcase.697237dfd3045a9e.jpg',
   },
   {
     id: 'single-artisan-craft',
@@ -626,7 +626,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     features: ['暖调亚麻白金奢华画报', '瑞士非对称双联排版', '五道传世工序时光轴', '材料血统鉴证书与工匠名录'],
     accentColor: '#c5a880',
     badge: '单产品奢华 · 工匠典藏',
-    previewImg: '/templates/previews/single-artisan-craft.42693c18b8094059.jpg',
+    previewImg: '/templates/previews/single-artisan-craft.3f2791c6dff7bd3c.jpg',
   },
   {
     id: 'single-wellness-nordic',
@@ -639,7 +639,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     accentColor: '#4a7c59',
     badge: '单产品治愈 · 北欧晨雾',
     hasVideo: true,
-    previewImg: '/templates/previews/single-wellness-nordic.6edfcae862f23415.jpg',
+    previewImg: '/templates/previews/single-wellness-nordic.edc0e83ae3315a82.jpg',
   },
 ];
 
