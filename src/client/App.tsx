@@ -1,4 +1,5 @@
-import { viewTeamData, writeBusiness } from '../shared/access';
+import type { Member } from './UserManagement';
+import { manageUsers, viewTeamData, writeBusiness } from '../shared/access';
 import { PendingWebsiteCreation } from './website-creation';
 import type { ProjectSummary, ProjectList } from '../shared/model';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
@@ -118,14 +119,15 @@ export default function App() {
         return null;
       }
     });
-  const [view, setView] = useState<'dashboard' | 'projects' | 'users' | 'admin' | 'services' | 'edm' | 'site-messages'>(() => {
+  const [view, setView] = useState<'dashboard' | 'projects' | 'users' | 'business' | 'admin' | 'services' | 'edm' | 'site-messages'>(() => {
       try {
         const v = new URL(window.location.href).searchParams.get('view');
-        if (v === 'users' || v === 'dashboard' || v === 'projects' || v === 'admin' || v === 'services' || v === 'edm' || v === 'site-messages') return v;
+        if (v === 'business' || v === 'users' || v === 'dashboard' || v === 'projects' || v === 'admin' || v === 'services' || v === 'edm' || v === 'site-messages') return v;
       } catch {}
       return 'dashboard';
     }),
     [embedError, setEmbedError] = useState('');
+  const [businessMember,setBusinessMember]=useState<Member|null>(null);
   const [authBusy, setAuthBusy] = useState(false),
     [sessionMessage, setSessionMessage] = useState('');
   const selectedRef = useRef(selected);
@@ -380,7 +382,8 @@ export default function App() {
                 <Icon name="globe" />
                 服务状态
               </button>
-              {viewTeamData(principal) && <button className={view === 'users' ? 'active' : ''} onClick={() => setView('users')}><Icon name="users"/>用户与业务数据</button>}
+              {manageUsers(principal) && <button className={view === 'users' ? 'active' : ''} onClick={() => setView('users')}><Icon name="users"/>用户管理</button>}
+              {viewTeamData(principal) && <button className={view === 'business' ? 'active' : ''} onClick={() => {setBusinessMember(null);setView('business')}}><Icon name="chart"/>业务数据</button>}
               {principal.systemRole === 'super_admin' && (
                 <button
                   className={view === 'admin' ? 'active' : ''}
@@ -422,8 +425,8 @@ export default function App() {
               <ErrorBoundary scope="section" title="营销功能加载异常" description="请重试或返回网站项目。" onBack={()=>setView('projects')} backText="返回网站项目">
                 <Suspense fallback={<ChunkFallback/>}><Outreach key={`${principal.userId}:${principal.workspaceId}`} principal={principal} section={view}/></Suspense>
               </ErrorBoundary>
-            ) : view === 'users' ? (
-              <Suspense fallback={<ChunkFallback/>}><UserManagement principal={principal}/></Suspense>
+            ) : view === 'users' || view === 'business' ? (
+              (view==='users'?manageUsers(principal):viewTeamData(principal)) ? <Suspense fallback={<ChunkFallback/>}><UserManagement key={`${view}:${businessMember?.workspace_id}:${businessMember?.user_id}`} principal={principal} section={view} initialMember={view==='business'?businessMember:null} onViewData={member=>{setBusinessMember(member);setView('business')}}/></Suspense> : <Notice tone="error">当前角色没有此功能的访问权限。</Notice>
             ) : view === 'admin' ? (
               <ErrorBoundary
                 scope="section"
